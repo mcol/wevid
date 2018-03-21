@@ -344,7 +344,7 @@ Wdensities.reweighted.average <- function(f.cases, f.ctrls, n.ctrls, n.cases,
 
 #' @export
 plotWdists <- function(Wdensities.unadj, Wdensities.adj,
-                       distlabels=c("Adjusted", "Unadjusted")) {
+                       distlabels=c("Unadjusted", "Adjusted")) {
     dists.data <- data.frame(W=Wdensities.unadj$x,
                              Controls=Wdensities.unadj$f.ctrls,
                              Cases=Wdensities.unadj$f.cases,
@@ -353,7 +353,7 @@ plotWdists <- function(Wdensities.unadj, Wdensities.adj,
     dists.long <- melt(dists.data, id="W")
     names(dists.long)[2] <- "status"
     dists.long$adjusted <- ifelse(grepl(".adj", dists.long$status),
-                                  distlabels[1], distlabels[2])
+                                  distlabels[2], distlabels[1])
     dists.long$status <- gsub(".adj$", "", dists.long$status)
     p <- ggplot(dists.long, aes(x=log2(exp(1))*dists.long$W, y=value,
                                 linetype=adjusted, colour=status)) +
