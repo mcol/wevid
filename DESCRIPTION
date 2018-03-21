@@ -5,7 +5,7 @@ Version: 0.0.0.9999
 Date: 2018-03-21
 Author: Paul McKeigue
 Authors@R: c(person("Paul", "McKeigue",
-                    email="paul.mckeigue@ed.ac.uk", role="aut"))
+                    email="paul.mckeigue@ed.ac.uk", role=c("aut", "cre")))
 Description: Quantifying performance of a diagnostic test through weight of evidence
 License: GPL-3
 LazyLoad: yes
