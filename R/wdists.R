@@ -355,12 +355,12 @@ plotWdists <- function(Wdensities.unadj, Wdensities.adj,
     dists.long$adjusted <- ifelse(grepl(".adj", dists.long$status),
                                   distlabels[1], distlabels[2])
     dists.long$status <- gsub(".adj$", "", dists.long$status)
-    p <- ggplot(dists.long, aes(x=log2(exp(1))*W, y=value,
+    p <- ggplot(dists.long, aes(x=log2(exp(1))*dists.long$W, y=value,
                                 linetype=adjusted, colour=status)) +
         geom_line(size=1.25) +
         scale_linetype_manual(values=c("dotted", "solid")) +
         scale_color_manual(values=c(Controls='#000000', Cases='#FF0000')) +
-        scale_x_continuous(limit=2 * c(min(W), max(W))) + 
+        scale_x_continuous(limit=c(min(dists.long$W), max(dists.long$W))) +
         scale_y_continuous() + 
         theme_grey(base_size = 20) +
         xlab("Weight of evidence case/control (bits)") +
