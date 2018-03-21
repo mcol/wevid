@@ -1,8 +1,21 @@
-#!/usr/bin/Rscript
-
-library(reshape2)
-library(ggplot2)
-library(pROC)
+##=============================================================================
+##
+## Copyright (c) 2018 Paul McKeigue
+##
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+##=============================================================================
 
 ## gaussian kernel for density estimation
 fsmooth <- function(x, X, h, n) {# scalar x, vector X, scalar h, scalar n
@@ -19,6 +32,7 @@ kl <- function(p, q) {#KL divergence of p from q
     return(kl)
 }
 
+#' @export
 wtrue.results <- function(studyname, y, posterior.p, prior.p) {
     auroc <- round(auc(y, posterior.p), 3)
 
@@ -52,7 +66,9 @@ wtrue.results <- function(studyname, y, posterior.p, prior.p) {
     return(results)
 }
 
-weightsofevidence <- function(posterior.p, prior.p) {# weights of evidence in nat log units
+#' Weights of evidence in nat log units
+#' @export
+weightsofevidence <- function(posterior.p, prior.p) {
  W <- (log(posterior.p) - log(1 - posterior.p) -
                      log(prior.p / (1 - prior.p)))
  return(W)
@@ -60,6 +76,7 @@ weightsofevidence <- function(posterior.p, prior.p) {# weights of evidence in na
 
 ######### these functions take raw W values as arguments ######################
 
+#' @export
 Wdensities.unadjusted <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.05, adjust.bw=1) {
     n.ctrls <- length(W[y==0])
     n.cases <- length(W[y==1])
@@ -118,6 +135,7 @@ weights2.flipnormalized <- function(w, range.xseq, x.stepsize, adjust.bw=adjust.
     return(weights)
 }
 
+#' @export
 Wdensities.reweighted <- function(y, W, range.xseq, x.stepsize, adjust.bw) {
     xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
 
@@ -319,6 +337,7 @@ Wdensities.reweighted.average <- function(f.cases, f.ctrls, n.ctrls, n.cases,
 
 ##################################################################
 
+#' @export
 plotWdists <- function(Wdensities.unadj, Wdensities.adj,
                        distlabels=c("Adjusted", "Unadjusted")) {
     dists.data <- data.frame(W=Wdensities.unadj$x,
