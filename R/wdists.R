@@ -78,13 +78,19 @@ weightsofevidence <- function(posterior.p, prior.p) {
 
 #' @export
 Wdensities.unadjusted <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.05, adjust.bw=1) {
-    n.ctrls <- length(W[y==0])
-    n.cases <- length(W[y==1])
+    n.ctrls <- sum(y == 0)
+    n.cases <- sum(y == 1)
+    if (n.ctrls + n.cases != length(y))
+        stop("y contains values different from 0 or 1")
     xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
-    fhat.cases.raw <- fhat.ctrls.raw <- numeric(length(xseq))    
+    fhat.cases.raw <- fhat.ctrls.raw <- numeric(length(xseq))
+    W.ctrls <- W[y == 0]
+    W.cases <- W[y == 1]
+    bw.ctrls <- bw.SJ(W.ctrls) * adjust.bw
+    bw.cases <- bw.SJ(W.cases) * adjust.bw
     for(i in 1:length(xseq)) {
-        fhat.ctrls.raw[i] <- fsmooth(xseq[i], W[y==0], h=adjust.bw * bw.SJ(W[y==0]), n.ctrls)
-        fhat.cases.raw[i] <- fsmooth(xseq[i], W[y==1], h=adjust.bw * bw.SJ(W[y==1]), n.cases)
+        fhat.ctrls.raw[i] <- fsmooth(xseq[i], W.ctrls, h=bw.ctrls, n.ctrls)
+        fhat.cases.raw[i] <- fsmooth(xseq[i], W.cases, h=bw.cases, n.cases)
     }
     return(data.frame(x=xseq, f.ctrls=fhat.ctrls.raw, f.cases=fhat.cases.raw))
 }
