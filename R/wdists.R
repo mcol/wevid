@@ -141,7 +141,6 @@ weights2.flipnormalized <- function(w, range.xseq, x.stepsize, adjust.bw=adjust.
     return(weights)
 }
 
-#' @export
 Wdensities.reweighted <- function(y, W, range.xseq, x.stepsize, adjust.bw) {
     xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
 
@@ -170,7 +169,7 @@ Wdensities.reweighted <- function(y, W, range.xseq, x.stepsize, adjust.bw) {
                       f.cases.reweighted=fhat.cases))
 }
 
-
+#' @export
 Wdensities.adjusted <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.05,
                                 adjust.bw=1) {# reweights raw observations density from raw W values, then averages direct and flipped
     densities.reweighted <- Wdensities.reweighted(y, W, range.xseq, x.stepsize,
