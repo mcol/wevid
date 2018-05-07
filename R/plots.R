@@ -66,13 +66,13 @@ plotWdists <- function(Wdensities.unadj, Wdensities.adj, mask=NULL,
         scale_color_manual(values=c(Controls='#000000', Cases='#FF0000')) +
         scale_x_continuous(limit=c(min(dists.long$W), max(dists.long$W))) +
         scale_y_continuous() +
-        theme_grey(base_size = 20) +
+        theme_grey(base_size=20) +
         xlab("Weight of evidence case/control (bits)") +
         ylab("Probability density") +
         theme(legend.position=c(0.01, 0.99),
               legend.justification=c(0, 1), # top-left corner of legend box
-              legend.title = element_blank()) +
-        theme(aspect.ratio = 1)
+              legend.title=element_blank()) +
+        theme(aspect.ratio=1)
 
     if(!is.null(mask)) {
         p <- p + scale_y_continuous(breaks=breaks, labels=labels, expand=c(0, 0))
@@ -82,6 +82,8 @@ plotWdists <- function(Wdensities.unadj, Wdensities.adj, mask=NULL,
     return(p)
 }
 
+#' Plot the cumulative frequency distributions in cases and in controls
+#'
 #' @import ggplot2
 #' @export
 plotcumfreqs <- function(densities) {
@@ -106,6 +108,8 @@ plotcumfreqs <- function(densities) {
     return(p)
 }
 
+#' Plot the crude and model-based ROC curves
+#'
 #' @import ggplot2
 #' @importFrom zoo rollmean
 #' @export

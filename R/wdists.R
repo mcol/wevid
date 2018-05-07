@@ -42,6 +42,7 @@ kl <- function(p, q) {
     return(kl)
 }
 
+#' @keywords internal
 reweight.densities <- function(theta, fhat.ctrls, fhat.cases,
                                n.ctrls, n.cases, xseq, wts) {
     mean.ctrls <- sum(fhat.ctrls * xseq) / sum(fhat.ctrls)
@@ -113,12 +114,10 @@ wtrue.results <- function(studyname, y, posterior.p, prior.p) {
 #'
 #' @export
 weightsofevidence <- function(posterior.p, prior.p) {
- W <- (log(posterior.p) - log(1 - posterior.p) -
-                     log(prior.p / (1 - prior.p)))
- return(W)
+    W <- (log(posterior.p) - log(1 - posterior.p) -
+          log(prior.p / (1 - prior.p)))
+    return(W)
 }
-
-######### these functions take raw W values as arguments ######################
 
 #' Calculate the unadjusted smoothed densities of W in cases and in controls
 #'
@@ -175,7 +174,7 @@ Wdensities.fromraw <- function(densities) {
                                 xseq, wts)
 
     ## mean normalizing constant
-    z = 0.5 * (sum(wdens$f.ctrls) + sum(wdens$f.cases)) * x.stepsize
+    z <- 0.5 * (sum(wdens$f.ctrls) + sum(wdens$f.cases)) * x.stepsize
     f.cases <- wdens$f.cases / z
     f.ctrls <- wdens$f.ctrls / z
     cat("f.cases normalizes to", sum(f.cases * x.stepsize), "\n")
