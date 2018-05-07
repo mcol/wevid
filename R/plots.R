@@ -111,6 +111,7 @@ plotcumfreqs <- function(densities) {
 #' Plot the crude and model-based ROC curves
 #'
 #' @import ggplot2
+#' @importFrom pROC roc
 #' @importFrom zoo rollmean
 #' @export
 plotroc <- function(densities, yobs, W) {
