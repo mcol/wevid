@@ -1,7 +1,7 @@
 Package: wevid
 Type: Package
 Title: Weight of evidence
-Version: 0.1
+Version: 0.1.0.9999
 Date: 2018-05-07
 Author: Paul McKeigue
 Authors@R: c(person("Paul", "McKeigue",
