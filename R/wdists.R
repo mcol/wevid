@@ -17,15 +17,25 @@
 ##
 ##=============================================================================
 
-## gaussian kernel for density estimation
-fsmooth <- function(x, X, h, n) {# scalar x, vector X, scalar h, scalar n
-    ## n is length of vector X
+#' Gaussian kernel for density estimation
+#'
+#' @param x scalar.
+#' @param X vector.
+#' @param h Bandwidth size.
+#' @param n Length of vector \var{X}.
+#' @keywords internal
+fsmooth <- function(x, X, h, n) {
     ## density at x is weighted average of observed values
     ## with weights scaling with exp(-t^2)
     return(sum(dnorm((x - X) / h))/ (n * h))
 }
 
-kl <- function(p, q) {#KL divergence of p from q
+#' Kullback-Leibler divergence of p from q
+#'
+#' @param p Probability distribution.
+#' @param q Probability distribution.
+#' @keywords internal
+kl <- function(p, q) {
     kl <- p * log( p / q)
     kl[p==0] <- 0
     kl <- mean(kl)
@@ -76,8 +86,17 @@ weightsofevidence <- function(posterior.p, prior.p) {
 
 ######### these functions take raw W values as arguments ######################
 
+#' Calculate the unadjusted smoothed densities of W in cases and in controls
+#'
+#' @param y Binary outcome label (0 for controls, 1 for cases).
+#' @param W Weight of evidence.
+#' @param range.xseq Range of points where the curves should be sampled.
+#' @param x.stepsize Distance between each point.
+#' @param adjust.bw Bandwidth adjustment.
+#'
 #' @export
-Wdensities.unadjusted <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.05, adjust.bw=1) {
+Wdensities.unadjusted <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.05,
+                                  adjust.bw=1) {
     n.ctrls <- sum(y == 0)
     n.cases <- sum(y == 1)
     if (n.ctrls + n.cases != length(y))
