@@ -178,7 +178,8 @@ Wdensities.fromraw <- function(densities) {
     f.ctrls <- wdens$f.ctrls / z
     cat("f.cases normalizes to", sum(f.cases * x.stepsize), "\n")
     cat("f.ctrls normalizes to", sum(f.ctrls * x.stepsize), "\n")
-    return(data.frame(x=xseq, f.ctrls=f.ctrls, f.cases=f.cases))
+    return(data.frame(x=xseq, f.ctrls=f.ctrls, f.cases=f.cases,
+                      x.stepsize=x.stepsize))
 }
 
 density.spike.slab <- function(w, in.spike, range.xseq, x.stepsize) {

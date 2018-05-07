@@ -12,6 +12,7 @@ LazyLoad: yes
 Imports:
     ggplot2,
     pROC,
-    reshape2
+    reshape2,
+    zoo
 ByteCompile: TRUE
 RoxygenNote: 6.0.1

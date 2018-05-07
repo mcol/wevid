@@ -2,9 +2,13 @@
 
 export(Wdensities.fromraw)
 export(Wdensities.unadjusted)
+export(plotW)
 export(plotWdists)
+export(plotcumfreqs)
+export(plotroc)
 export(weightsofevidence)
 export(wtrue.results)
 import(ggplot2)
 importFrom(pROC,auc)
 importFrom(reshape2,melt)
+importFrom(zoo,rollmean)

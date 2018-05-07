@@ -81,3 +81,82 @@ plotWdists <- function(Wdensities.unadj, Wdensities.adj, mask=NULL,
     }
     return(p)
 }
+
+#' @import ggplot2
+#' @export
+plotcumfreqs <- function(densities) {
+    cumfreqs.ctrls <- cumfreqs(densities$f.ctrls, densities$x, densities$x.stepsize)
+    cumfreqs.ctrls <- data.frame(status=rep("Controls", nrow(cumfreqs.ctrls)),
+                           W=cumfreqs.ctrls$x, F=cumfreqs.ctrls$F)
+    cumfreqs.cases <- cumfreqs(densities$f.cases, densities$x, densities$x.stepsize)
+    cumfreqs.cases <- data.frame(status=rep("Cases", nrow(cumfreqs.cases)),
+                                 W=cumfreqs.cases$x, F=cumfreqs.cases$F)
+    cumfreqs <- rbind(cumfreqs.ctrls, cumfreqs.cases)
+    p <- ggplot(cumfreqs, aes(x=log2(exp(1))*W, y=F, colour=status)) +
+        geom_line(size=1.25) +
+        scale_color_manual(values=c(Controls='#000000', Cases='#FF0000')) +
+        scale_x_continuous(limit=2 * c(min(W), max(W)), expand=c(0, 0)) +
+        scale_y_continuous(limit=c(0, 1), breaks=seq(0, 1, by=0.1), expand=c(0, 0)) +
+        theme_grey(base_size=20) +
+        xlab("Weight of evidence case/control (bits)") +
+        ylab("Cumulative probability") +
+        theme(legend.position=c(0.8, 0.3),
+              legend.title=element_blank()) +
+        theme(aspect.ratio=1)
+    return(p)
+}
+
+#' @import ggplot2
+#' @importFrom zoo rollmean
+#' @export
+plotroc <- function(densities, yobs, W) {
+    x.stepsize <- densities$x.stepsize
+    cumfreqs.ctrls <- cumfreqs(densities$f.ctrls, densities$x, x.stepsize)
+    cumfreqs.cases <- cumfreqs(densities$f.cases, densities$x, x.stepsize)
+    roc.model <- data.frame(x=1 - cumfreqs.ctrls$F, y=1 - cumfreqs.cases$F)
+    roc.model$calc <- "Model-based"
+
+    auroc.model <- sum(diff(roc.model$x) * rollmean(roc.model$y, 2))
+    cat("Model-based AuROC", auroc.model, "\n")
+    roc.crude <- roc(yobs, W)
+    roc.crude <- data.frame(x=1 - roc.crude$sensitivities,
+                            y=roc.crude$specificities)
+    roc.crude$calc <- "crude"
+    roc <- rbind(roc.model, roc.crude)
+
+    p <- ggplot(roc, aes(x=x, y=y, colour=calc)) +
+        geom_line(size=1.25) + coord_fixed() +
+        scale_x_continuous(limit=c(0, 1), breaks=seq(0, 1, by=0.1), expand=c(0, 0)) +
+        scale_y_continuous(limit=c(0, 1), breaks=seq(0, 1, by=0.1), expand=c(0, 0)) +
+        theme_grey(base_size=20) +
+        xlab("1 - specificity") +
+        ylab("Sensitivity") +
+        theme(legend.position=c(0.7, 0.2),
+              legend.title=element_blank())
+    return(p)
+}
+
+#' @import ggplot2
+#' @export
+plotW <- function(densities, W) {
+    densities.logratio <- log(densities$f.cases / densities$f.ctrls)
+    wratios <- data.frame(Wdens=densities$x, Wratio=densities.logratio)
+    axislimits <- 1.5 * c(min(W), max(W))
+    p <- ggplot(wratios, aes(x=Wdens, y=densities.logratio)) +
+        geom_line(size=1.25) + coord_fixed() +
+        scale_x_continuous(limit=axislimits, expand=c(0, 0)) +
+        scale_y_continuous(limit=axislimits, expand=c(0, 0)) +
+        theme_grey(base_size=20) +
+        xlab("Weight of evidence case/control (bits)") +
+        ylab("Log ratio case density to control density")
+    return(p)
+}
+
+#' Cumulative frequency distribution
+#'
+#' @keywords internal
+cumfreqs <- function(f, xseq, x.stepsize) {
+    ## normalize f
+    f <- f / sum(f * x.stepsize)
+    return(data.frame(x=xseq, F=cumsum(f * x.stepsize)))
+}
