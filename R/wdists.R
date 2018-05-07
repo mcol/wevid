@@ -42,7 +42,8 @@ kl <- function(p, q) {
     return(kl)
 }
 
-reweight.densities <- function(theta, fhat.ctrls, fhat.cases, wts) {
+reweight.densities <- function(theta, fhat.ctrls, fhat.cases,
+                               n.ctrls, n.cases, xseq, wts) {
     mean.ctrls <- sum(fhat.ctrls * xseq) / sum(fhat.ctrls)
     mean.cases <- sum(fhat.cases * xseq) / sum(fhat.cases)
     weights.ctrls <- n.ctrls * exp(-theta[1] * (xseq - mean.ctrls)^2)
@@ -62,8 +63,9 @@ reweight.densities <- function(theta, fhat.ctrls, fhat.cases, wts) {
 
 #' Evaluate objective function
 #' @keywords internal
-error.integrals <- function(theta, fhat.ctrls, fhat.cases, wts) {
-    wdens <-  reweight.densities(theta, fhat.ctrls, fhat.cases, wts)
+error.integrals <- function(theta, densities, wts) {
+    wdens <- with(densities, reweight.densities(theta, f.ctrls, f.cases,
+                                                n.ctrls, n.cases, x, wts))
     ## objective function is abs(log(ratio of normalizing constants)
     obj <- abs(log(sum(wdens$f.ctrls / sum(wdens$f.cases))))
     return(obj)
@@ -144,35 +146,31 @@ Wdensities.unadjusted <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.05,
         fhat.ctrls.raw[i] <- fsmooth(xseq[i], W.ctrls, h=bw.ctrls, n.ctrls)
         fhat.cases.raw[i] <- fsmooth(xseq[i], W.cases, h=bw.cases, n.cases)
     }
-    return(data.frame(x=xseq, f.ctrls=fhat.ctrls.raw, f.cases=fhat.cases.raw))
+    return(list(x=xseq, f.ctrls=fhat.ctrls.raw, f.cases=fhat.cases.raw,
+                n.ctrls=n.ctrls, n.cases=n.cases, x.stepsize=x.stepsize))
 }
 
 #' Adjust the crude densities of weights of evidence in cases and controls
 #'
 #' @param densities Unadjusted densities computed by
 #'        \code{\link{Wdensities.unadjusted}}.
-#' @param y Binary outcome label (0 for controls, 1 for cases).
 #' @export
-Wdensities.fromraw <- function(densities, y) {
-    n.ctrls <- sum(y == 0)
-    n.cases <- sum(y == 1)
-    if (n.ctrls + n.cases != length(y))
-        stop("y contains values different from 0 or 1")
-
-    wts <- cbind(exp(-0.5 * xseq) * n.ctrls, exp(0.5 * xseq) * n.cases)
+Wdensities.fromraw <- function(densities) {
+    xseq <- densities$x
+    x.stepsize <- densities$x.stepsize
+    wts <- cbind(exp(-0.5 * xseq) * densities$n.ctrls,
+                 exp(+0.5 * xseq) * densities$n.cases)
     wts  <- wts / rowSums(wts) # normalize weights
 
     optim.result <- optim(par=0, fn=error.integrals, method="L-BFGS-B",
-                          fhat.ctrls=densities$f.ctrls,
-                          fhat.cases=densities$f.cases,
-                          n.ctrls=densities$n.ctrls,
-                          n.cases=densities$n.cases,
-                          wts=wts,
+                          densities=densities, wts=wts,
                           lower=-0.5, upper=0.5)
     theta <- optim.result$par
     cat("Optimal value of theta:", theta, "\n")
 
-    wdens <- reweight.densities(theta, densities$f.ctrls, densities$f.cases, wts) 
+    wdens <- reweight.densities(theta, densities$f.ctrls, densities$f.cases,
+                                densities$n.ctrls, densities$n.cases,
+                                xseq, wts)
 
     ## mean normalizing constant
     z = 0.5 * (sum(wdens$f.ctrls) + sum(wdens$f.cases)) * x.stepsize
