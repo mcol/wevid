@@ -42,6 +42,34 @@ kl <- function(p, q) {
     return(kl)
 }
 
+reweight.densities <- function(theta, fhat.ctrls, fhat.cases, wts) {
+    mean.ctrls <- sum(fhat.ctrls * xseq) / sum(fhat.ctrls)
+    mean.cases <- sum(fhat.cases * xseq) / sum(fhat.cases)
+    weights.ctrls <- n.ctrls * exp(-theta[1] * (xseq - mean.ctrls)^2)
+    weights.cases <- n.cases * exp(+theta[1] * (xseq - mean.cases)^2)
+    weights.ctrls <- weights.ctrls / sum(weights.ctrls)
+    weights.cases <- weights.cases / sum(weights.cases)
+
+    # average two estimates of geometric mean
+    fhat.geomean <- wts[, 1] * fhat.ctrls * weights.ctrls * exp(+0.5 * xseq) +
+                    wts[, 2] * fhat.cases * weights.cases * exp(-0.5 * xseq)
+
+    ## compute case and control log densities
+    f.ctrls <- fhat.geomean * exp(-0.5 * xseq)
+    f.cases <- fhat.geomean * exp(+0.5 * xseq)
+    return(data.frame(f.ctrls=f.ctrls, f.cases=f.cases))
+}
+
+#' Evaluate objective function
+#' @keywords internal
+error.integrals <- function(theta, fhat.ctrls, fhat.cases, wts) {
+    wdens <-  reweight.densities(theta, fhat.ctrls, fhat.cases, wts)
+    ## objective function is abs(log(ratio of normalizing constants)
+    obj <- abs(log(sum(wdens$f.ctrls / sum(wdens$f.cases))))
+    return(obj)
+}
+
+#' @importFrom pROC auc
 #' @export
 wtrue.results <- function(studyname, y, posterior.p, prior.p) {
     auroc <- round(auc(y, posterior.p), 3)
@@ -51,6 +79,7 @@ wtrue.results <- function(studyname, y, posterior.p, prior.p) {
                                       log(prior.p / (1 - prior.p)))
     loglikrat.case <- loglikrat[y==1]
     loglikrat.ctrl <- loglikrat[y==0]
+
     ## test log-likelihood as difference from prior log-likelihood
     loglik <- y * log(posterior.p) + (1 - y) * log(1 - posterior.p) -
         (y * log(prior.p) + (1 - y) * log(1 - prior.p))
@@ -59,24 +88,27 @@ wtrue.results <- function(studyname, y, posterior.p, prior.p) {
                           casectrlrat <- paste0(as.character(length(y[y==1])), " / ",
                                                 as.character(length(y[y==0]))),
                           auroc=round(auroc, 3),
-                          loglikrat.all=round(log2(exp(1)) * mean(loglikrat), 2), 
-                          loglikrat.varmeanrat=round(var(loglikrat) / mean(loglikrat), 2),
-                          loglikrat.case= round(log2(exp(1)) * mean(loglikrat.case), 2), 
-                          loglikrat.ctrl=round(log2(exp(1)) * mean(loglikrat.ctrl), 2), 
+                          loglikrat.all=round(log2(exp(1)) * mean(c(loglikrat.case,
+                                                                    loglikrat.ctrl)), 2),
+                          loglikrat.varmeanrat=round(var(loglikrat) /
+                                                     mean(c(loglikrat.case,
+                                                            loglikrat.ctrl)), 2),
                           test.loglik=round(log2(exp(1)) * sum(loglik), 2)
                           ) 
     names(results) <-
         c("Model", "Cases / controls",
           "C-statistic",
-          "Average weight of evidence (bits)",
+          "Crude Lambda (bits)",
           "W variance / mean ratio (nats)",
-          paste("Average W in cases (bits)"),
-          paste("Average W in controls (bits)"),
           "Test log-likelihood (bits)")
     return(results)
 }
 
 #' Weights of evidence in nat log units
+#'
+#' @param posterior.p Posterior probabilities
+#' @param prior.p Prior probabilities
+#'
 #' @export
 weightsofevidence <- function(posterior.p, prior.p) {
  W <- (log(posterior.p) - log(1 - posterior.p) -
@@ -101,6 +133,7 @@ Wdensities.unadjusted <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.05,
     n.cases <- sum(y == 1)
     if (n.ctrls + n.cases != length(y))
         stop("y contains values different from 0 or 1")
+
     xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
     fhat.cases.raw <- fhat.ctrls.raw <- numeric(length(xseq))
     W.ctrls <- W[y == 0]
@@ -114,13 +147,49 @@ Wdensities.unadjusted <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.05,
     return(data.frame(x=xseq, f.ctrls=fhat.ctrls.raw, f.cases=fhat.cases.raw))
 }
 
+#' Adjust the crude densities of weights of evidence in cases and controls
+#'
+#' @param densities Unadjusted densities computed by
+#'        \code{\link{Wdensities.unadjusted}}.
+#' @param y Binary outcome label (0 for controls, 1 for cases).
+#' @export
+Wdensities.fromraw <- function(densities, y) {
+    n.ctrls <- sum(y == 0)
+    n.cases <- sum(y == 1)
+    if (n.ctrls + n.cases != length(y))
+        stop("y contains values different from 0 or 1")
+
+    wts <- cbind(exp(-0.5 * xseq) * n.ctrls, exp(0.5 * xseq) * n.cases)
+    wts  <- wts / rowSums(wts) # normalize weights
+
+    optim.result <- optim(par=0, fn=error.integrals, method="L-BFGS-B",
+                          fhat.ctrls=densities$f.ctrls,
+                          fhat.cases=densities$f.cases,
+                          n.ctrls=densities$n.ctrls,
+                          n.cases=densities$n.cases,
+                          wts=wts,
+                          lower=-0.5, upper=0.5)
+    theta <- optim.result$par
+    cat("Optimal value of theta:", theta, "\n")
+
+    wdens <- reweight.densities(theta, densities$f.ctrls, densities$f.cases, wts) 
+
+    ## mean normalizing constant
+    z = 0.5 * (sum(wdens$f.ctrls) + sum(wdens$f.cases)) * x.stepsize
+    f.cases <- wdens$f.cases / z
+    f.ctrls <- wdens$f.ctrls / z
+    cat("f.cases normalizes to", sum(f.cases * x.stepsize), "\n")
+    cat("f.ctrls normalizes to", sum(f.ctrls * x.stepsize), "\n")
+    return(data.frame(x=xseq, f.ctrls=f.ctrls, f.cases=f.cases))
+}
 
 
 ##################################################################
 
 #' @export
-plotWdists <- function(Wdensities.unadj, Wdensities.adj,
+plotWdists <- function(Wdensities.unadj, Wdensities.adj, mask=NULL,
                        distlabels=c("Unadjusted", "Adjusted")) {
+
     dists.data <- data.frame(W=Wdensities.unadj$x,
                              Controls=Wdensities.unadj$f.ctrls,
                              Cases=Wdensities.unadj$f.cases,
@@ -131,6 +200,30 @@ plotWdists <- function(Wdensities.unadj, Wdensities.adj,
     dists.long$adjusted <- ifelse(grepl(".adj", dists.long$status),
                                   distlabels[2], distlabels[1])
     dists.long$status <- gsub(".adj$", "", dists.long$status)
+    if(!is.null(mask)) {
+        max.value <- max(dists.long$value)
+        ceiling.base <- 2
+        base <- dists.long$value <= ceiling.base
+        floor.peak <- floor(max.value - ceiling.base)
+        peak <- dists.long$value > floor.peak
+        dists.long$mask <- NA
+        dists.long$mask[base] <- 1
+        dists.long$mask[peak] <- 0
+        print(table(dists.long$mask, exclude=NULL))
+
+        max.value.base <- max(dists.long$value[base])
+        min.value.peak <- min(dists.long$value[peak])
+        ## rescale peak values to start from 0
+        dists.long$value[peak] <- dists.long$value[peak] - floor.peak
+        step <- 0.5
+        ## breaks and labels must have the same length
+        labels.base <- breaks.base <- c(seq(0, max.value.base, by=step))
+        labels.peak <- c(seq(0, max.value, by=step))
+        breaks.peak <- labels.peak - floor.peak
+        labels <- c(labels.base, labels.peak)
+        breaks <- c(breaks.base, breaks.peak)
+        dists.long <- dists.long[!is.na(dists.long$mask), ]
+    }
     p <- ggplot(dists.long, aes(x=log2(exp(1))*dists.long$W, y=value,
                                 linetype=adjusted, colour=status)) +
         geom_line(size=1.25) +
@@ -141,9 +234,16 @@ plotWdists <- function(Wdensities.unadj, Wdensities.adj,
         theme_grey(base_size = 20) +
         xlab("Weight of evidence case/control (bits)") +
         ylab("Probability density") +
-        theme(legend.position=c(0.8, 0.7),
+        theme(legend.position=c(0.01, 0.99),
+              legend.justification=c(0, 1), # top-left corner of legend box
               legend.title = element_blank()) + 
-            theme(aspect.ratio = 1)
+        theme(aspect.ratio = 1)
+
+    if(!is.null(mask)) {
+        p <- p + scale_y_continuous(breaks=breaks, labels=labels, expand=c(0, 0))
+    } else {
+        p <- p + scale_y_continuous(expand=c(0, 0))
+    }
     return(p)
 }
 
@@ -162,7 +262,8 @@ density.spike.slab <- function(w, in.spike, range.xseq, x.stepsize) {
     return(density.mix)
 }
 
-Wdensities.mix <- function(W, yobs, in.spike, range.xseq=c(-25, 25), x.stepsize=0.01) {
+Wdensities.mix <- function(W, yobs, in.spike, range.xseq=c(-25, 25),
+                           x.stepsize=x.stepsize) {
     xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
 
     Wdensity.mix.ctrls <- density.spike.slab(W[yobs==0], in.spike[yobs==0],
