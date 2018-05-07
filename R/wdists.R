@@ -158,8 +158,10 @@ Wdensities.unadjusted <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.05,
 Wdensities.fromraw <- function(densities) {
     xseq <- densities$x
     x.stepsize <- densities$x.stepsize
-    wts <- cbind(exp(-0.5 * xseq) * densities$n.ctrls,
-                 exp(+0.5 * xseq) * densities$n.cases)
+    n.ctrls <- densities$n.ctrls
+    n.cases <- densities$n.cases
+    wts <- cbind(exp(-0.5 * xseq) * n.ctrls,
+                 exp(+0.5 * xseq) * n.cases)
     wts  <- wts / rowSums(wts) # normalize weights
 
     optim.result <- optim(par=0, fn=error.integrals, method="L-BFGS-B",
@@ -169,7 +171,7 @@ Wdensities.fromraw <- function(densities) {
     cat("Optimal value of theta:", theta, "\n")
 
     wdens <- reweight.densities(theta, densities$f.ctrls, densities$f.cases,
-                                densities$n.ctrls, densities$n.cases,
+                                n.ctrls, n.cases,
                                 xseq, wts)
 
     ## mean normalizing constant
@@ -178,8 +180,8 @@ Wdensities.fromraw <- function(densities) {
     f.ctrls <- wdens$f.ctrls / z
     cat("f.cases normalizes to", sum(f.cases * x.stepsize), "\n")
     cat("f.ctrls normalizes to", sum(f.ctrls * x.stepsize), "\n")
-    return(data.frame(x=xseq, f.ctrls=f.ctrls, f.cases=f.cases,
-                      x.stepsize=x.stepsize))
+    return(list(x=xseq, f.ctrls=f.ctrls, f.cases=f.cases,
+                n.ctrls=n.ctrls, n.cases=n.cases, x.stepsize=x.stepsize))
 }
 
 density.spike.slab <- function(w, in.spike, range.xseq, x.stepsize) {
@@ -207,4 +209,58 @@ Wdensities.mix <- function(W, yobs, in.spike, range.xseq=c(-25, 25),
                                              range.xseq, x.stepsize)
     return(data.frame(x=xseq, f.ctrls=Wdensity.mix.ctrls$y,
                       f.cases=Wdensity.mix.cases$y))
+}
+
+#' Compute the AUC according to the model densities
+#'
+#' @param densities Adjusted densities computed by
+#'        \code{\link{Wdensities.fromraw}}.
+#' @export
+auroc.model <- function(densities) {
+    x.stepsize <- densities$x.stepsize
+    cumfreqs.ctrls <- cumfreqs(densities$f.ctrls, densities$x, x.stepsize)
+    cumfreqs.cases <- cumfreqs(densities$f.cases, densities$x, x.stepsize)
+    roc.model <- data.frame(x=1 - cumfreqs.ctrls$F, y=1 - cumfreqs.cases$F)
+    auroc.model <- -sum(diff(roc.model$x) * rollmean(roc.model$y, 2))
+    return(auroc.model)
+}
+
+#' Compute the expected information for discrimination from the model densities
+#'
+#' @param densities Adjusted densities computed by
+#'        \code{\link{Wdensities.fromraw}}.
+#' @export
+lambda.model <- function(densities) {
+    wts.ctrlscases <- with(densities, c(n.ctrls, n.cases) / (n.ctrls + n.cases))
+    lambda <- sum(wts.ctrlscases * means.densities(densities)) / log(2)
+    return(lambda)
+}
+
+#' @export
+prop.belowthreshold <- function(densities, w.threshold) {
+    x.stepsize <- densities$x.stepsize
+    xseq.threshold.idx <- which(densities$x >= w.threshold)[1]
+    prop.ctrls <- round(cumfreqs(densities$x,
+                                 densities$f.ctrls, x.stepsize)[xseq.threshold.idx, 2], 3)
+    prop.cases <- round(cumfreqs(densities$x,
+                                 densities$f.cases, x.stepsize)[xseq.threshold.idx, 2], 3)
+    return(c(prop.ctrls, prop.cases))
+}
+
+#' Cumulative frequency distribution
+#'
+#' @keywords internal
+cumfreqs <- function(f, xseq, x.stepsize) {
+    ## normalize f
+    f <- f / sum(f * x.stepsize)
+    return(data.frame(x=xseq, F=cumsum(f * x.stepsize)))
+}
+
+#' Mean densities in cases and controls
+#'
+#' @keywords internal
+means.densities <- function(densities) {
+    means.ctrls <- sum(densities$x * densities$f.ctrls) / sum(densities$f.ctrls)
+    means.cases <- sum(densities$x * densities$f.cases) / sum(densities$f.cases)
+    return(c(-means.ctrls, means.cases))
 }

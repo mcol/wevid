@@ -151,12 +151,3 @@ plotW <- function(densities, W) {
         ylab("Log ratio case density to control density")
     return(p)
 }
-
-#' Cumulative frequency distribution
-#'
-#' @keywords internal
-cumfreqs <- function(f, xseq, x.stepsize) {
-    ## normalize f
-    f <- f / sum(f * x.stepsize)
-    return(data.frame(x=xseq, F=cumsum(f * x.stepsize)))
-}

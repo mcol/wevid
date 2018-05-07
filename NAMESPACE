@@ -2,10 +2,13 @@
 
 export(Wdensities.fromraw)
 export(Wdensities.unadjusted)
+export(auroc.model)
+export(lambda.model)
 export(plotW)
 export(plotWdists)
 export(plotcumfreqs)
 export(plotroc)
+export(prop.belowthreshold)
 export(weightsofevidence)
 export(wtrue.results)
 import(ggplot2)
