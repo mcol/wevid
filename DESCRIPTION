@@ -1,8 +1,8 @@
 Package: wevid
 Type: Package
 Title: Weight of evidence
-Version: 0.0.0.9999
-Date: 2018-03-21
+Version: 0.1
+Date: 2018-05-07
 Author: Paul McKeigue
 Authors@R: c(person("Paul", "McKeigue",
                     email="paul.mckeigue@ed.ac.uk", role=c("aut")),
