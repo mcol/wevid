@@ -184,6 +184,8 @@ Wdensities.fromraw <- function(densities) {
 
 ##################################################################
 
+#' @import ggplot2
+#' @importFrom reshape2 melt
 #' @export
 plotWdists <- function(Wdensities.unadj, Wdensities.adj, mask=NULL,
                        distlabels=c("Unadjusted", "Adjusted")) {
