@@ -184,31 +184,34 @@ Wdensities.fromraw <- function(densities) {
                 n.ctrls=n.ctrls, n.cases=n.cases, x.stepsize=x.stepsize))
 }
 
-density.spike.slab <- function(w, in.spike, range.xseq, x.stepsize) {
+#' Compute smoothed densities with mixture component
+#'
+#' @export
+Wdensities.mix <- function(y, W, in.spike, range.xseq=c(-25, 25), x.stepsize=0.05) {
     xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
+    n.ctrls <- sum(y == 0)
+    n.cases <- sum(y == 1)
+    if (n.ctrls + n.cases != length(y))
+        stop("y contains values different from 0 or 1")
 
-    density.spike <- density(w[in.spike], bw="SJ", n=length(xseq),
-                                    from=min(xseq), to=max(xseq))
-    density.slab <- density(w[!in.spike], bw="SJ", n=length(xseq),
-                                   from=min(xseq), to=max(xseq))
+    Wdensity.mix.ctrls <- density.spike.slab(W[yobs==0], in.spike[yobs==0], xseq)
+    Wdensity.mix.cases <- density.spike.slab(W[yobs==1], in.spike[yobs==1], xseq)
+    return(list(x=xseq, f.ctrls=Wdensity.mix.ctrls$y, f.cases=Wdensity.mix.cases$y,
+                n.ctrls=n.ctrls, n.cases=n.cases, x.stepsize=x.stepsize))
+}
+
+#' @keywords internal
+density.spike.slab <- function(W, in.spike, xseq) {
+    density.spike <- density(W[in.spike], bw="SJ", n=length(xseq),
+                             from=min(xseq), to=max(xseq))
+    density.slab <- density(W[!in.spike], bw="SJ", n=length(xseq),
+                            from=min(xseq), to=max(xseq))
     wts.mix <- as.integer(table(in.spike))
     wts.mix <- wts.mix / sum(wts.mix)
     density.mix <- data.frame(x=xseq,
                               y=wts.mix[1] * density.slab$y +
-                                  wts.mix[2] * density.spike$y)
+                                wts.mix[2] * density.spike$y)
     return(density.mix)
-}
-
-Wdensities.mix <- function(W, yobs, in.spike, range.xseq=c(-25, 25),
-                           x.stepsize=x.stepsize) {
-    xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
-
-    Wdensity.mix.ctrls <- density.spike.slab(W[yobs==0], in.spike[yobs==0],
-                                             range.xseq, x.stepsize)
-    Wdensity.mix.cases <- density.spike.slab(W[yobs==1], in.spike[yobs==1],
-                                             range.xseq, x.stepsize)
-    return(data.frame(x=xseq, f.ctrls=Wdensity.mix.ctrls$y,
-                      f.cases=Wdensity.mix.cases$y))
 }
 
 #' Compute the AUC according to the model densities
