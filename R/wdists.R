@@ -260,7 +260,9 @@ cumfreqs <- function(f, xseq, x.stepsize) {
 
 #' Mean densities in cases and controls
 #'
-#' @keywords internal
+#' @param densities Adjusted densities computed by
+#'        \code{\link{Wdensities.fromraw}}.
+#' @export
 means.densities <- function(densities) {
     means.ctrls <- sum(densities$x * densities$f.ctrls) / sum(densities$f.ctrls)
     means.cases <- sum(densities$x * densities$f.cases) / sum(densities$f.cases)
