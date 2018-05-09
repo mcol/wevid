@@ -1,7 +1,7 @@
 Package: wevid
 Type: Package
 Title: Weight of evidence
-Version: 0.2
+Version: 0.2.0.9999
 Date: 2018-05-09
 Author: Paul McKeigue
 Maintainer: Marco Colombo <m.colombo@ed.ac.uk>
