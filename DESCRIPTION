@@ -4,7 +4,7 @@ Title: Weight of evidence
 Version: 0.1.0.9999
 Date: 2018-05-07
 Author: Paul McKeigue
-Maintainer: Marco Colombo <m.colombo at ed.ac.uk>
+Maintainer: Marco Colombo <m.colombo@ed.ac.uk>
 Authors@R: c(person("Paul", "McKeigue",
                     email="paul.mckeigue@ed.ac.uk", role=c("aut")),
              person("Marco", "Colombo",
