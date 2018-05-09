@@ -128,7 +128,7 @@ weightsofevidence <- function(posterior.p, prior.p) {
 #' @param adjust.bw Bandwidth adjustment.
 #'
 #' @export
-Wdensities.unadjusted <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.05,
+Wdensities.unadjusted <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
                                   adjust.bw=1) {
     n.ctrls <- sum(y == 0)
     n.cases <- sum(y == 1)
@@ -186,7 +186,7 @@ Wdensities.fromraw <- function(densities) {
 #' Compute smoothed densities with mixture component
 #'
 #' @export
-Wdensities.mix <- function(y, W, in.spike, range.xseq=c(-25, 25), x.stepsize=0.05) {
+Wdensities.mix <- function(y, W, in.spike, range.xseq=c(-25, 25), x.stepsize=0.01) {
     xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
     n.ctrls <- sum(y == 0)
     n.cases <- sum(y == 1)
