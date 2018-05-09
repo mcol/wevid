@@ -72,6 +72,12 @@ error.integrals <- function(theta, densities, wts) {
     return(obj)
 }
 
+#' Summary evaluation of predictive performance
+#'
+#' @param studyname Name of the study.
+#' @param y Binary outcome label (0 for controls, 1 for cases).
+#' @param posterior.p Vector of posterior probabilities.
+#' @param prior.p Vector of prior probabilities.
 #' @importFrom pROC auc
 #' @export
 wtrue.results <- function(studyname, y, posterior.p, prior.p) {
