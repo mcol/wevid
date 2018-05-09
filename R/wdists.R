@@ -87,8 +87,7 @@ wtrue.results <- function(studyname, y, posterior.p, prior.p) {
     auroc <- auc(y, posterior.p, direction="<")
 
     ## weight of evidence in favour of true status
-    loglikrat <- (2 * y - 1) * (log(posterior.p) - log(1 - posterior.p) -
-                                      log(prior.p / (1 - prior.p)))
+    loglikrat <- (2 * y - 1) * weightsofevidence(posterior.p, prior.p)
     loglikrat.case <- loglikrat[y==1]
     loglikrat.ctrl <- loglikrat[y==0]
 
