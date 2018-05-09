@@ -6,7 +6,10 @@
 \usage{
 means.densities(densities)
 }
+\arguments{
+\item{densities}{Adjusted densities computed by
+\code{\link{Wdensities.fromraw}}.}
+}
 \description{
 Mean densities in cases and controls
 }
-\keyword{internal}

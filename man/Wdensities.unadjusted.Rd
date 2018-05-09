@@ -4,7 +4,7 @@
 \alias{Wdensities.unadjusted}
 \title{Calculate the unadjusted smoothed densities of W in cases and in controls}
 \usage{
-Wdensities.unadjusted(y, W, range.xseq = c(-25, 25), x.stepsize = 0.05,
+Wdensities.unadjusted(y, W, range.xseq = c(-25, 25), x.stepsize = 0.01,
   adjust.bw = 1)
 }
 \arguments{

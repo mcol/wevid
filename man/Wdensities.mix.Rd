@@ -4,7 +4,7 @@
 \alias{Wdensities.mix}
 \title{Compute smoothed densities with mixture component}
 \usage{
-Wdensities.mix(y, W, in.spike, range.xseq = c(-25, 25), x.stepsize = 0.05)
+Wdensities.mix(y, W, in.spike, range.xseq = c(-25, 25), x.stepsize = 0.01)
 }
 \description{
 Compute smoothed densities with mixture component
