@@ -238,14 +238,19 @@ lambda.model <- function(densities) {
     return(lambda)
 }
 
+#' Proportion of cases and controls below a given threshold
+#'
+#' @param densities Adjusted densities computed by
+#'        \code{\link{Wdensities.fromraw}}.
+#' @param w.threshold Threshold value of weight of evidence.
 #' @export
 prop.belowthreshold <- function(densities, w.threshold) {
     x.stepsize <- densities$x.stepsize
     xseq.threshold.idx <- which(densities$x >= w.threshold)[1]
-    prop.ctrls <- round(cumfreqs(densities$x,
-                                 densities$f.ctrls, x.stepsize)[xseq.threshold.idx, 2], 3)
-    prop.cases <- round(cumfreqs(densities$x,
-                                 densities$f.cases, x.stepsize)[xseq.threshold.idx, 2], 3)
+    prop.ctrls <- round(cumfreqs(densities$f.ctrls, densities$x,
+                                 x.stepsize)[xseq.threshold.idx, 2], 3)
+    prop.cases <- round(cumfreqs(densities$f.cases, densities$x,
+                                 x.stepsize)[xseq.threshold.idx, 2], 3)
     return(c(prop.ctrls, prop.cases))
 }
 
