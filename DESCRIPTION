@@ -9,7 +9,7 @@ Authors@R: c(person("Paul", "McKeigue",
                     email="paul.mckeigue@ed.ac.uk", role=c("aut")),
              person("Marco", "Colombo",
                     email="m.colombo@ed.ac.uk", role=c("ctb", "cre")))
-Description: Quantifying performance of a diagnostic test through weight of evidence
+Description: Quantifying performance of a diagnostic test through weight of evidence.
 License: GPL-3
 URL: http://www.homepages.ed.ac.uk/pmckeigu/
 LazyLoad: yes
