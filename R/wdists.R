@@ -81,7 +81,10 @@ error.integrals <- function(theta, densities, wts) {
 #' @importFrom pROC auc
 #' @export
 wtrue.results <- function(studyname, y, posterior.p, prior.p) {
-    auroc <- round(auc(y, posterior.p), 3)
+
+    ## force the direction of computation of the c-statistic so that predicted
+    ## values for controls are lower or equal than the values for cases
+    auroc <- auc(y, posterior.p, direction="<")
 
     ## weight of evidence in favour of true status
     loglikrat <- (2 * y - 1) * (log(posterior.p) - log(1 - posterior.p) -
