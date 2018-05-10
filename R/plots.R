@@ -101,7 +101,8 @@ plotcumfreqs <- function(densities) {
         theme_grey(base_size=20) +
         xlab("Weight of evidence case/control (bits)") +
         ylab("Cumulative probability") +
-        theme(legend.position=c(0.8, 0.3),
+        theme(legend.position=c(0.99, 0.01),
+              legend.justification=c(1, 0), # bottom-right corner of legend box
               legend.title=element_blank()) +
         theme(aspect.ratio=1)
     return(p)
@@ -125,7 +126,7 @@ plotroc <- function(densities, yobs, W) {
     roc.crude <- roc(yobs, W)
     roc.crude <- data.frame(x=1 - roc.crude$specificities,
                             y=roc.crude$sensitivities)
-    roc.crude$calc <- "crude"
+    roc.crude$calc <- "Crude"
     roc <- rbind(roc.model, roc.crude)
 
     p <- ggplot(roc, aes(x=x, y=y, colour=calc)) +
@@ -133,9 +134,10 @@ plotroc <- function(densities, yobs, W) {
         scale_x_continuous(limit=c(0, 1), breaks=seq(0, 1, by=0.1), expand=c(0, 0)) +
         scale_y_continuous(limit=c(0, 1), breaks=seq(0, 1, by=0.1), expand=c(0, 0)) +
         theme_grey(base_size=20) +
-        xlab("1 - specificity") +
+        xlab("1 - Specificity") +
         ylab("Sensitivity") +
-        theme(legend.position=c(0.7, 0.2),
+        theme(legend.position=c(0.99, 0.01),
+              legend.justification=c(1, 0), # bottom-right corner of legend box
               legend.title=element_blank())
     return(p)
 }
