@@ -59,6 +59,8 @@ plotWdists <- function(Wdensities.unadj, Wdensities.adj, mask=NULL,
         breaks <- c(breaks.base, breaks.peak)
         dists.long <- dists.long[!is.na(dists.long$mask), ]
     }
+
+    expand <- c(0.005, 0.005)
     p <- ggplot(dists.long, aes(x=tobits(dists.long$W), y=value,
                                 linetype=adjusted, colour=status)) +
         geom_line(size=1.25) +
@@ -74,9 +76,9 @@ plotWdists <- function(Wdensities.unadj, Wdensities.adj, mask=NULL,
         theme(aspect.ratio=1)
 
     if(!is.null(mask)) {
-        p <- p + scale_y_continuous(breaks=breaks, labels=labels, expand=c(0, 0))
+        p <- p + scale_y_continuous(breaks=breaks, labels=labels, expand=expand)
     } else {
-        p <- p + scale_y_continuous(expand=c(0, 0))
+        p <- p + scale_y_continuous(expand=expand)
     }
     return(p)
 }
@@ -93,11 +95,14 @@ plotcumfreqs <- function(densities) {
     cumfreqs.cases <- data.frame(status=rep("Cases", nrow(cumfreqs.cases)),
                                  W=cumfreqs.cases$x, F=cumfreqs.cases$F)
     cumfreqs <- rbind(cumfreqs.ctrls, cumfreqs.cases)
+
+    breaks <- seq(0, 1, by=0.1)
+    expand <- c(0.005, 0.005)
     p <- ggplot(cumfreqs, aes(x=tobits(W), y=F, colour=status)) +
         geom_line(size=1.25) +
         scale_color_manual(values=c(Controls='#000000', Cases='#FF0000')) +
-        scale_x_continuous(limit=2 * c(min(W), max(W)), expand=c(0, 0)) +
-        scale_y_continuous(limit=c(0, 1), breaks=seq(0, 1, by=0.1), expand=c(0, 0)) +
+        scale_x_continuous(limit=2 * c(min(W), max(W)), expand=expand) +
+        scale_y_continuous(limit=c(0, 1), breaks=breaks, expand=expand) +
         theme_grey(base_size=20) +
         xlab("Weight of evidence case/control (bits)") +
         ylab("Cumulative probability") +
@@ -129,10 +134,12 @@ plotroc <- function(densities, yobs, W) {
     roc.crude$calc <- "Crude"
     roc <- rbind(roc.model, roc.crude)
 
+    breaks <- seq(0, 1, by=0.1)
+    expand <- c(0.005, 0.005)
     p <- ggplot(roc, aes(x=x, y=y, colour=calc)) +
         geom_line(size=1.25) + coord_fixed() +
-        scale_x_continuous(limit=c(0, 1), breaks=seq(0, 1, by=0.1), expand=c(0, 0)) +
-        scale_y_continuous(limit=c(0, 1), breaks=seq(0, 1, by=0.1), expand=c(0, 0)) +
+        scale_x_continuous(limit=c(0, 1), breaks=breaks, expand=expand) +
+        scale_y_continuous(limit=c(0, 1), breaks=breaks, expand=expand) +
         theme_grey(base_size=20) +
         xlab("1 - Specificity") +
         ylab("Sensitivity") +
