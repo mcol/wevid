@@ -267,7 +267,7 @@ prop.belowthreshold <- function(densities, w.threshold) {
                                  x.stepsize)[xseq.threshold.idx, 2], 3)
     prop.cases <- round(cumfreqs(densities$f.cases, densities$x,
                                  x.stepsize)[xseq.threshold.idx, 2], 3)
-    return(c(prop.ctrls, prop.cases))
+    return(c(ctrls=prop.ctrls, cases=prop.cases))
 }
 
 #' Cumulative frequency distribution
@@ -287,5 +287,5 @@ cumfreqs <- function(f, xseq, x.stepsize) {
 means.densities <- function(densities) {
     means.ctrls <- sum(densities$x * densities$f.ctrls) / sum(densities$f.ctrls)
     means.cases <- sum(densities$x * densities$f.cases) / sum(densities$f.cases)
-    return(c(-means.ctrls, means.cases))
+    return(c(ctrls=-means.ctrls, cases=means.cases))
 }
