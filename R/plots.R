@@ -123,8 +123,8 @@ plotroc <- function(densities, yobs, W) {
     auroc.model <- sum(diff(roc.model$x) * rollmean(roc.model$y, 2))
     cat("Model-based AuROC", auroc.model, "\n")
     roc.crude <- roc(yobs, W)
-    roc.crude <- data.frame(x=1 - roc.crude$sensitivities,
-                            y=roc.crude$specificities)
+    roc.crude <- data.frame(x=1 - roc.crude$specificities,
+                            y=roc.crude$sensitivities)
     roc.crude$calc <- "crude"
     roc <- rbind(roc.model, roc.crude)
 
