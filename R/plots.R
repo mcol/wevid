@@ -65,7 +65,6 @@ plotWdists <- function(Wdensities.unadj, Wdensities.adj, mask=NULL,
         scale_linetype_manual(values=c("dotted", "solid")) +
         scale_color_manual(values=c(Controls='#000000', Cases='#FF0000')) +
         scale_x_continuous(limit=c(min(dists.long$W), max(dists.long$W))) +
-        scale_y_continuous() +
         theme_grey(base_size=20) +
         xlab("Weight of evidence case/control (bits)") +
         ylab("Probability density") +
