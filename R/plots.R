@@ -59,7 +59,7 @@ plotWdists <- function(Wdensities.unadj, Wdensities.adj, mask=NULL,
         breaks <- c(breaks.base, breaks.peak)
         dists.long <- dists.long[!is.na(dists.long$mask), ]
     }
-    p <- ggplot(dists.long, aes(x=log2(exp(1))*dists.long$W, y=value,
+    p <- ggplot(dists.long, aes(x=tobits(dists.long$W), y=value,
                                 linetype=adjusted, colour=status)) +
         geom_line(size=1.25) +
         scale_linetype_manual(values=c("dotted", "solid")) +
@@ -94,7 +94,7 @@ plotcumfreqs <- function(densities) {
     cumfreqs.cases <- data.frame(status=rep("Cases", nrow(cumfreqs.cases)),
                                  W=cumfreqs.cases$x, F=cumfreqs.cases$F)
     cumfreqs <- rbind(cumfreqs.ctrls, cumfreqs.cases)
-    p <- ggplot(cumfreqs, aes(x=log2(exp(1))*W, y=F, colour=status)) +
+    p <- ggplot(cumfreqs, aes(x=tobits(W), y=F, colour=status)) +
         geom_line(size=1.25) +
         scale_color_manual(values=c(Controls='#000000', Cases='#FF0000')) +
         scale_x_continuous(limit=2 * c(min(W), max(W)), expand=c(0, 0)) +

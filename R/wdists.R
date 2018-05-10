@@ -42,6 +42,16 @@ kl <- function(p, q) {
     return(kl)
 }
 
+#' Convert from natural log units to bits
+#'
+#' @param x Value expressed in natural log units (nats).
+#' @return Value expressed in bits.
+#'
+#' @keywords internal
+tobits <- function(x) {
+  return(log2(exp(1)) * x)
+}
+
 #' @keywords internal
 reweight.densities <- function(theta, fhat.ctrls, fhat.cases,
                                n.ctrls, n.cases, xseq, wts) {
@@ -99,12 +109,12 @@ wtrue.results <- function(studyname, y, posterior.p, prior.p) {
                           casectrlrat <- paste0(as.character(length(y[y==1])), " / ",
                                                 as.character(length(y[y==0]))),
                           auroc=round(auroc, 3),
-                          loglikrat.all=round(log2(exp(1)) * mean(c(loglikrat.case,
-                                                                    loglikrat.ctrl)), 2),
+                          loglikrat.all=round(tobits(mean(c(loglikrat.case,
+                                                            loglikrat.ctrl))), 2),
                           loglikrat.varmeanrat=round(var(loglikrat) /
                                                      mean(c(loglikrat.case,
                                                             loglikrat.ctrl)), 2),
-                          test.loglik=round(log2(exp(1)) * sum(loglik), 2)
+                          test.loglik=round(tobits(sum(loglik)), 2)
                           ) 
     names(results) <-
         c("Model", "Cases / controls",
