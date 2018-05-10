@@ -100,20 +100,18 @@ wtrue.results <- function(studyname, y, posterior.p, prior.p) {
     loglikrat <- (2 * y - 1) * weightsofevidence(posterior.p, prior.p)
     loglikrat.case <- loglikrat[y==1]
     loglikrat.ctrl <- loglikrat[y==0]
+    mean.loglikrat <- mean(c(loglikrat.case, loglikrat.ctrl))
 
     ## test log-likelihood as difference from prior log-likelihood
     loglik <- y * log(posterior.p) + (1 - y) * log(1 - posterior.p) -
         (y * log(prior.p) + (1 - y) * log(1 - prior.p))
 
     results <- data.frame(model=studyname,
-                          casectrlrat <- paste0(as.character(length(y[y==1])), " / ",
-                                                as.character(length(y[y==0]))),
+                          casectrlrat=paste0(length(loglikrat.case), " / ",
+                                             length(loglikrat.ctrl)),
                           auroc=round(auroc, 3),
-                          loglikrat.all=round(tobits(mean(c(loglikrat.case,
-                                                            loglikrat.ctrl))), 2),
-                          loglikrat.varmeanrat=round(var(loglikrat) /
-                                                     mean(c(loglikrat.case,
-                                                            loglikrat.ctrl)), 2),
+                          loglikrat.all=round(tobits(mean.loglikrat), 2),
+                          varmeanrat=round(var(loglikrat) / mean.loglikrat, 2),
                           test.loglik=round(tobits(sum(loglik)), 2)
                           ) 
     names(results) <-
