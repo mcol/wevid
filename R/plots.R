@@ -125,9 +125,8 @@ plotroc <- function(densities, yobs, W) {
     cumfreqs.cases <- cumfreqs(densities$f.cases, densities$x, x.stepsize)
     roc.model <- data.frame(x=1 - cumfreqs.ctrls$F, y=1 - cumfreqs.cases$F)
     roc.model$calc <- "Model-based"
+    cat("Model-based AUROC", auroc.model(densities), "\n")
 
-    auroc.model <- sum(diff(roc.model$x) * rollmean(roc.model$y, 2))
-    cat("Model-based AuROC", auroc.model, "\n")
     roc.crude <- roc(yobs, W)
     roc.crude <- data.frame(x=1 - roc.crude$specificities,
                             y=roc.crude$sensitivities)
