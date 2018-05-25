@@ -10,6 +10,9 @@ lambda.model(densities)
 \item{densities}{Adjusted densities computed by
 \code{\link{Wdensities.fromraw}}.}
 }
+\value{
+The model-based expected information for discrimination.
+}
 \description{
 Compute the expected information for discrimination from the model densities
 }

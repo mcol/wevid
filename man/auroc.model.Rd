@@ -2,7 +2,7 @@
 % Please edit documentation in R/wdists.R
 \name{auroc.model}
 \alias{auroc.model}
-\title{Compute the AUC according to the model densities}
+\title{Compute the area under the ROC curve according to the model-based densities}
 \usage{
 auroc.model(densities)
 }
@@ -10,6 +10,9 @@ auroc.model(densities)
 \item{densities}{Adjusted densities computed by
 \code{\link{Wdensities.fromraw}}.}
 }
+\value{
+The model-based AUROC.
+}
 \description{
-Compute the AUC according to the model densities
+Compute the area under the ROC curve according to the model-based densities
 }

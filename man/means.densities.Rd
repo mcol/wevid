@@ -10,6 +10,9 @@ means.densities(densities)
 \item{densities}{Adjusted densities computed by
 \code{\link{Wdensities.fromraw}}.}
 }
+\value{
+The mean densities in controls and in cases.
+}
 \description{
 Mean densities in cases and controls
 }

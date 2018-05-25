@@ -11,6 +11,9 @@ kl(p, q)
 
 \item{q}{Probability distribution.}
 }
+\value{
+The KL divergence expressed in nats.
+}
 \description{
 Kullback-Leibler divergence of p from q
 }

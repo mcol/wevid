@@ -12,6 +12,10 @@ prop.belowthreshold(densities, w.threshold)
 
 \item{w.threshold}{Threshold value of weight of evidence.}
 }
+\value{
+The proportion of controls and cases with weight of evidence below
+        the given threshold.
+}
 \description{
 Proportion of cases and controls below a given threshold
 }
