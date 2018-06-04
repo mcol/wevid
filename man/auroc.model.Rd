@@ -2,7 +2,7 @@
 % Please edit documentation in R/wdists.R
 \name{auroc.model}
 \alias{auroc.model}
-\title{Compute the area under the ROC curve according to the model-based densities}
+\title{Compute area under the ROC curve according to model-based densities}
 \usage{
 auroc.model(densities)
 }
@@ -11,8 +11,21 @@ auroc.model(densities)
 \code{\link{Wdensities.fromraw}}.}
 }
 \value{
-The model-based AUROC.
+The area under the model-based ROC curve computed from the densities of the
+weight of evidence in cases and noncases.  This model-based ROC curve is always
+concave (if the densities have been adjusted to make them mathematically consistent).
 }
 \description{
-Compute the area under the ROC curve according to the model-based densities
+Compute area under the ROC curve according to model-based densities
+}
+\examples{
+data("cleveland") # load example dataset
+W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
+densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
+densities.adj <- Wdensities.fromraw(densities.unadj)
+auroc.model(densities.adj)
+
+}
+\seealso{
+plotroc
 }

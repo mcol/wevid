@@ -2,10 +2,22 @@
 % Please edit documentation in R/wdists.R
 \name{Wdensities.mix}
 \alias{Wdensities.mix}
-\title{Compute smoothed densities with mixture component}
+\title{Compute smoothed densities for a spike-slab mixture distribution}
 \usage{
 Wdensities.mix(y, W, in.spike, range.xseq = c(-25, 25), x.stepsize = 0.01)
 }
+\arguments{
+\item{y}{Binary outcome label (0 for controls, 1 for cases).}
+
+\item{W}{Weight of evidence.}
+
+\item{in.spike}{logical vector same length as y, TRUE if in spike component,
+FALSE otherwise. Typically used where high proportion of values of the predictor are zero}
+
+\item{range.xseq}{Range of points where the curves should be sampled.}
+
+\item{x.stepsize}{Distance between each point.}
+}
 \description{
-Compute smoothed densities with mixture component
+Compute smoothed densities for a spike-slab mixture distribution
 }

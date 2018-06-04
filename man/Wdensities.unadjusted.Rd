@@ -18,6 +18,9 @@ Wdensities.unadjusted(y, W, range.xseq = c(-25, 25), x.stepsize = 0.01,
 
 \item{adjust.bw}{Bandwidth adjustment.}
 }
+\value{
+unadjusted density object
+}
 \description{
 Calculate the unadjusted smoothed densities of W in cases and in controls
 }

@@ -2,10 +2,29 @@
 % Please edit documentation in R/plots.R
 \name{plotroc}
 \alias{plotroc}
-\title{Plot the crude and model-based ROC curves}
+\title{Plot crude and model-based ROC curves}
 \usage{
-plotroc(densities, yobs, W)
+plotroc(densities, y, W)
+}
+\arguments{
+\item{densities}{Adjusted densities computed by
+\code{\link{Wdensities.fromraw}}.}
+
+\item{y}{Binary outcome label (0 for controls, 1 for cases).}
+
+\item{W}{Weight of evidence (natural logs).}
+}
+\value{
+ggplot of crude and model-based ROC curves
 }
 \description{
-Plot the crude and model-based ROC curves
+Plot crude and model-based ROC curves
+}
+\examples{
+data("cleveland") # load example dataset
+W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
+densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
+densities.adj <- Wdensities.fromraw(densities.unadj)
+plotroc(densities.adj, cleveland$y, W)
+
 }

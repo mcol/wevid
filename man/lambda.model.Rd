@@ -2,7 +2,8 @@
 % Please edit documentation in R/wdists.R
 \name{lambda.model}
 \alias{lambda.model}
-\title{Compute the expected information for discrimination from the model densities}
+\title{Compute the expected information for discrimination (expected weight of evidence)
+from the model-based densities}
 \usage{
 lambda.model(densities)
 }
@@ -14,5 +15,14 @@ lambda.model(densities)
 The model-based expected information for discrimination.
 }
 \description{
-Compute the expected information for discrimination from the model densities
+Compute the expected information for discrimination (expected weight of evidence)
+from the model-based densities
+}
+\examples{
+data("cleveland") # load example dataset
+W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
+densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
+densities.adj <- Wdensities.fromraw(densities.unadj)
+lambda.model(densities.adj)
+
 }

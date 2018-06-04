@@ -21,9 +21,24 @@
 #'
 #' @import ggplot2
 #' @importFrom reshape2 melt
+#'
+#' @param Wdensities.unadj Unadjusted densities computed by
+#'        \code{\link{Wdensities.unadjusted}}.
+#' @param Wdensities.adj Adjusted densities computed by
+#'        \code{\link{Wdensities.fromraw}}.
+#' @param mask if not null, breaks y axis to show more detail of lower end
+#' @param distlabels Character vector of length 2
+#'
+#' @examples
+#' data("cleveland") # load example dataset
+#' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
+#' densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
+#' densities.adj <- Wdensities.fromraw(densities.unadj)
+#' plotWdists(densities.unadj, densities.adj)
+#' 
 #' @export
 plotWdists <- function(Wdensities.unadj, Wdensities.adj, mask=NULL,
-                       distlabels=c("Unadjusted", "Adjusted")) {
+                       distlabels=c("Crude", "Adjusted")) {
 
     dists.data <- data.frame(W=Wdensities.unadj$x,
                              Controls=Wdensities.unadj$f.ctrls,
@@ -66,7 +81,7 @@ plotWdists <- function(Wdensities.unadj, Wdensities.adj, mask=NULL,
         geom_line(size=1.25) +
         scale_linetype_manual(values=c("dotted", "solid")) +
         scale_color_manual(values=c(Controls='#000000', Cases='#FF0000')) +
-        scale_x_continuous(limit=c(min(dists.long$W), max(dists.long$W))) +
+        scale_x_continuous(limits=c(min(dists.long$W), max(dists.long$W))) +
         theme_grey(base_size=20) +
         xlab("Weight of evidence case/control (bits)") +
         ylab("Probability density") +
@@ -86,6 +101,17 @@ plotWdists <- function(Wdensities.unadj, Wdensities.adj, mask=NULL,
 #' Plot the cumulative frequency distributions in cases and in controls
 #'
 #' @import ggplot2
+#'
+#' @param densities Adjusted densities computed by
+#'        \code{\link{Wdensities.fromraw}}.
+#'
+#' @examples
+#' data("cleveland") # load example dataset
+#' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
+#' densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
+#' densities.adj <- Wdensities.fromraw(densities.unadj)
+#' plotcumfreqs(densities.adj)
+#' 
 #' @export
 plotcumfreqs <- function(densities) {
     cumfreqs.ctrls <- cumfreqs(densities$f.ctrls, densities$x, densities$x.stepsize)
@@ -101,8 +127,8 @@ plotcumfreqs <- function(densities) {
     p <- ggplot(cumfreqs, aes(x=tobits(W), y=F, colour=status)) +
         geom_line(size=1.25) +
         scale_color_manual(values=c(Controls='#000000', Cases='#FF0000')) +
-        scale_x_continuous(limit=2 * c(min(W), max(W)), expand=expand) +
-        scale_y_continuous(limit=c(0, 1), breaks=breaks, expand=expand) +
+        scale_x_continuous(limits=2 * c(min(W), max(W)), expand=expand) +
+        scale_y_continuous(limits=c(0, 1), breaks=breaks, expand=expand) +
         theme_grey(base_size=20) +
         xlab("Weight of evidence case/control (bits)") +
         ylab("Cumulative probability") +
@@ -113,13 +139,28 @@ plotcumfreqs <- function(densities) {
     return(p)
 }
 
-#' Plot the crude and model-based ROC curves
+#' Plot crude and model-based ROC curves
 #'
 #' @import ggplot2
 #' @importFrom pROC roc
 #' @importFrom zoo rollmean
+#'
+#' @param densities Adjusted densities computed by
+#'        \code{\link{Wdensities.fromraw}}.
+#' @param y Binary outcome label (0 for controls, 1 for cases).
+#' @param W Weight of evidence (natural logs).
+#'
+#' @return ggplot of crude and model-based ROC curves
+#'
+#' @examples
+#' data("cleveland") # load example dataset
+#' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
+#' densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
+#' densities.adj <- Wdensities.fromraw(densities.unadj)
+#' plotroc(densities.adj, cleveland$y, W)
+#' 
 #' @export
-plotroc <- function(densities, yobs, W) {
+plotroc <- function(densities, y, W) {
     x.stepsize <- densities$x.stepsize
     cumfreqs.ctrls <- cumfreqs(densities$f.ctrls, densities$x, x.stepsize)
     cumfreqs.cases <- cumfreqs(densities$f.cases, densities$x, x.stepsize)
@@ -127,7 +168,7 @@ plotroc <- function(densities, yobs, W) {
     roc.model$calc <- "Model-based"
     cat("Model-based AUROC", auroc.model(densities), "\n")
 
-    roc.crude <- roc(yobs, W)
+    roc.crude <- roc(y, W)
     roc.crude <- data.frame(x=1 - roc.crude$specificities,
                             y=roc.crude$sensitivities)
     roc.crude$calc <- "Crude"
@@ -137,8 +178,8 @@ plotroc <- function(densities, yobs, W) {
     expand <- c(0.005, 0.005)
     p <- ggplot(roc, aes(x=x, y=y, colour=calc)) +
         geom_line(size=1.25) + coord_fixed() +
-        scale_x_continuous(limit=c(0, 1), breaks=breaks, expand=expand) +
-        scale_y_continuous(limit=c(0, 1), breaks=breaks, expand=expand) +
+        scale_x_continuous(limits=c(0, 1), breaks=breaks, expand=expand) +
+        scale_y_continuous(limits=c(0, 1), breaks=breaks, expand=expand) +
         theme_grey(base_size=20) +
         xlab("1 - Specificity") +
         ylab("Sensitivity") +
@@ -148,16 +189,35 @@ plotroc <- function(densities, yobs, W) {
     return(p)
 }
 
+#' plot log case/control density ratio against weight of evidence as a check that
+#' the densities are mathematically consistent
+#'
 #' @import ggplot2
+#'
+#' @param densities Adjusted densities computed by
+#'        \code{\link{Wdensities.fromraw}}.
+#' @param W Weight of evidence. (natural logs)
+#'
+#' @return ggpplot of natural log case/control density ratio against weight of evidence
+#' (should be a straight line of gradient 1 passing through the origin)
+#'
+#' @examples
+#' data("cleveland") # load example dataset
+#' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
+#' densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
+#' densities.adj <- Wdensities.fromraw(densities.unadj)
+#' plotW(densities.adj, W)
+#' 
 #' @export
 plotW <- function(densities, W) {
     densities.logratio <- log(densities$f.cases / densities$f.ctrls)
-    wratios <- data.frame(Wdens=densities$x, Wratio=densities.logratio)
+    wratios <- data.frame(
+        Wdens=densities$x, Wratio=densities.logratio)
     axislimits <- 1.5 * c(min(W), max(W))
     p <- ggplot(wratios, aes(x=Wdens, y=densities.logratio)) +
         geom_line(size=1.25) + coord_fixed() +
-        scale_x_continuous(limit=axislimits, expand=c(0, 0)) +
-        scale_y_continuous(limit=axislimits, expand=c(0, 0)) +
+        scale_x_continuous(limits=axislimits, expand=c(0, 0)) +
+        scale_y_continuous(limits=axislimits, expand=c(0, 0)) +
         theme_grey(base_size=20) +
         xlab("Weight of evidence case/control (bits)") +
         ylab("Log ratio case density to control density")

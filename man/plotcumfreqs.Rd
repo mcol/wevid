@@ -6,6 +6,18 @@
 \usage{
 plotcumfreqs(densities)
 }
+\arguments{
+\item{densities}{Adjusted densities computed by
+\code{\link{Wdensities.fromraw}}.}
+}
 \description{
 Plot the cumulative frequency distributions in cases and in controls
+}
+\examples{
+data("cleveland") # load example dataset
+W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
+densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
+densities.adj <- Wdensities.fromraw(densities.unadj)
+plotcumfreqs(densities.adj)
+
 }

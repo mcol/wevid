@@ -22,3 +22,9 @@ A dataframe listing some metrics of predictive performance.
 \description{
 Summary evaluation of predictive performance
 }
+\examples{
+data("cleveland") # load example dataset
+with(cleveland,
+     wtrue.results("cleveland", y, posterior.p, prior.p))
+
+}

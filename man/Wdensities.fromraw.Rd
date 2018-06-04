@@ -2,7 +2,8 @@
 % Please edit documentation in R/wdists.R
 \name{Wdensities.fromraw}
 \alias{Wdensities.fromraw}
-\title{Adjust the crude densities of weights of evidence in cases and controls}
+\title{Adjust the crude densities of weights of evidence in cases and controls
+to make them mathematically consistent}
 \usage{
 Wdensities.fromraw(densities)
 }
@@ -12,4 +13,13 @@ Wdensities.fromraw(densities)
 }
 \description{
 Adjust the crude densities of weights of evidence in cases and controls
+to make them mathematically consistent
+}
+\examples{
+data("cleveland") # load example dataset
+W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
+densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
+densities.adj <- Wdensities.fromraw(densities.unadj)
+plotWdists(densities.unadj, densities.adj)
+
 }

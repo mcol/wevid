@@ -2,7 +2,7 @@
 % Please edit documentation in R/wdists.R
 \name{means.densities}
 \alias{means.densities}
-\title{Mean densities in cases and controls}
+\title{Means of densities in cases and controls}
 \usage{
 means.densities(densities)
 }
@@ -11,8 +11,11 @@ means.densities(densities)
 \code{\link{Wdensities.fromraw}}.}
 }
 \value{
-The mean densities in controls and in cases.
+numeric vector of length 2: mean densities in controls and in cases.
 }
 \description{
-Mean densities in cases and controls
+Means of densities in cases and controls
+}
+\seealso{
+: lambda.model
 }

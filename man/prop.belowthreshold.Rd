@@ -2,7 +2,7 @@
 % Please edit documentation in R/wdists.R
 \name{prop.belowthreshold}
 \alias{prop.belowthreshold}
-\title{Proportion of cases and controls below a given threshold}
+\title{Proportions of cases and controls below a given threshold of W (natural logs)}
 \usage{
 prop.belowthreshold(densities, w.threshold)
 }
@@ -10,12 +10,21 @@ prop.belowthreshold(densities, w.threshold)
 \item{densities}{Adjusted densities computed by
 \code{\link{Wdensities.fromraw}}.}
 
-\item{w.threshold}{Threshold value of weight of evidence.}
+\item{w.threshold}{Threshold value of weight of evidence (natural logs).}
 }
 \value{
-The proportion of controls and cases with weight of evidence below
-        the given threshold.
+numeric vector of length 2: proportions of controls and cases with weight
+of evidence below the given threshold.
 }
 \description{
-Proportion of cases and controls below a given threshold
+Proportions of cases and controls below a given threshold of W (natural logs)
+}
+\examples{
+data("cleveland") # load example dataset
+W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
+densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
+densities.adj <- Wdensities.fromraw(densities.unadj)
+w.threshold <- log(4) # threshold Bayes factor of 4
+prop.belowthreshold(densities.adj, w.threshold)
+
 }

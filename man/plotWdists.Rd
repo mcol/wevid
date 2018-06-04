@@ -5,8 +5,27 @@
 \title{Plot the distribution of the weight of evidence in cases and in controls}
 \usage{
 plotWdists(Wdensities.unadj, Wdensities.adj, mask = NULL,
-  distlabels = c("Unadjusted", "Adjusted"))
+  distlabels = c("Crude", "Adjusted"))
+}
+\arguments{
+\item{Wdensities.unadj}{Unadjusted densities computed by
+\code{\link{Wdensities.unadjusted}}.}
+
+\item{Wdensities.adj}{Adjusted densities computed by
+\code{\link{Wdensities.fromraw}}.}
+
+\item{mask}{if not null, breaks y axis to show more detail of lower end}
+
+\item{distlabels}{Character vector of length 2}
 }
 \description{
 Plot the distribution of the weight of evidence in cases and in controls
+}
+\examples{
+data("cleveland") # load example dataset
+W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
+densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
+densities.adj <- Wdensities.fromraw(densities.unadj)
+plotWdists(densities.unadj, densities.adj)
+
 }

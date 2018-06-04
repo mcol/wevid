@@ -23,14 +23,32 @@
 ## Package documentation.
 ##
 
-#' Quantifying performance of a diagnostic test through weight of evidence
+#' Quantifying performance of a diagnostic test using the sampling distribution of the weight of evidence
+#' favouring case over noncase status
 #'
-#' This package provides functions for computing and plotting the distributions
-#' of the weight of evidence.
+#' This package provides functions for quantifying the performance of a diagnostic test
+#' (or any other binary classifier) by calculating and plotting the distributions in cases
+#' and noncases of the weight of evidence favouring case over noncase status.
+#' 
+#' To use it, you should have computed on a test dataset (or on test folds used for
+#' cross-validation:
+#' 
+#' 1. The prior probability of case status (this may be just the frequency of cases in the
+#' training data.
+#' 
+#' 2. The posterior probability of case status (using the model learned on the training data
+#' to predict on the test data)
+#' 
+#' 3. The observed case status (coded as 0=noncase, 1=case). 
 #'
 #' @author
 #' Paul McKeigue \email{paul.mckeigue@@ed.ac.uk}
 #'
+#' Citation for the statistical methods used in this package:
+#' McKeigue P. Quantifying performance of a diagnostic test as the expected information
+#' for discrimination: relation to the C-statistic.
+#' Statistical Methods for Medical Research 2018, in press.
+#' 
 #' @docType package
 #' @import ggplot2
 "_PACKAGE"
