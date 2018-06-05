@@ -154,12 +154,21 @@ weightsofevidence <- function(posterior.p, prior.p) {
 
 #' Calculate the crude smoothed densities of W in cases and in controls
 #'
+#' These functions allow to compute the smoothed densities of the weight of
+#' evidence in cases and in controls from the crude probabilities.
+#' \code{Wdensities.crude} is designed for the general case; if the model
+#' probabilities reflect a spike-slab mixture distribution, where a high
+#' proportion of values of the predictor are zero, then \code{Wdensities.mix}
+#' will be more appropriate.
+#'
+#' @name Wdensities
 #' @param y Binary outcome label (0 for controls, 1 for cases).
 #' @param W Weight of evidence.
 #' @param range.xseq Range of points where the curves should be sampled.
 #' @param x.stepsize Distance between each point.
 #' @param adjust.bw Bandwidth adjustment.
 #' @return Density object containing crude densities.
+#'
 #' @export
 Wdensities.crude <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
                              adjust.bw=1) {
@@ -185,7 +194,8 @@ Wdensities.crude <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
 #' Adjust the crude densities of weights of evidence in cases and controls
 #' to make them mathematically consistent
 #'
-#' @param densities Crude densities computed by \code{\link{Wdensities.crude}}.
+#' @param densities Crude densities computed by \code{\link{Wdensities.crude}}
+#'        or \code{\link{Wdensities.mix}}.
 #'
 #' @examples
 #' data("cleveland") # load example dataset
@@ -193,7 +203,7 @@ Wdensities.crude <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
 #' densities.crude <- Wdensities.crude(cleveland$y, W)
 #' densities.adj <- Wdensities.fromraw(densities.crude)
 #' plotWdists(densities.crude, densities.adj)
-#' 
+#'
 #' @export
 Wdensities.fromraw <- function(densities) {
     xseq <- densities$x
@@ -224,15 +234,10 @@ Wdensities.fromraw <- function(densities) {
                 n.ctrls=n.ctrls, n.cases=n.cases, x.stepsize=x.stepsize))
 }
 
-#' Compute smoothed densities for a spike-slab mixture distribution
-#'
-#' @param y Binary outcome label (0 for controls, 1 for cases).
-#' @param W Weight of evidence.
+#' @rdname Wdensities
 #' @param in.spike Logical vector same length as \code{y}, \code{TRUE} if in
 #'        spike component, \code{FALSE} otherwise. Typically used where high
 #'        proportion of values of the predictor are zero.
-#' @param range.xseq Range of points where the curves should be sampled.
-#' @param x.stepsize Distance between each point.
 #'
 #' @export
 Wdensities.mix <- function(y, W, in.spike, range.xseq=c(-25, 25), x.stepsize=0.01) {

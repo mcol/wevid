@@ -20,7 +20,7 @@
 #' Plot the distribution of the weight of evidence in cases and in controls
 #'
 #' @param Wdensities.crude Crude densities computed by
-#'        \code{\link{Wdensities.crude}}.
+#'        \code{\link{Wdensities.crude}} or \code{\link{Wdensities.mix}}.
 #' @param Wdensities.adj Adjusted densities computed by
 #'        \code{\link{Wdensities.fromraw}}.
 #' @param mask if not null, breaks y axis to show more detail of lower end.
