@@ -101,6 +101,8 @@ error.integrals <- function(theta, densities, wts) {
 #' @importFrom pROC auc
 #' @export
 wtrue.results <- function(studyname, y, posterior.p, prior.p) {
+    validate.probabilities(posterior.p, prior.p)
+
     ## force direction of computation of the C-statistic so that predicted
     ## values for controls are lower or equal than values for cases
     auroc <- auc(y, posterior.p, direction="<")
@@ -144,6 +146,7 @@ wtrue.results <- function(studyname, y, posterior.p, prior.p) {
 #' 
 #' @export
 weightsofevidence <- function(posterior.p, prior.p) {
+    validate.probabilities(posterior.p, prior.p)
     W <- (log(posterior.p) - log(1 - posterior.p) -
           log(prior.p / (1 - prior.p)))
     return(W)
@@ -357,4 +360,23 @@ means.densities <- function(densities) {
     means.ctrls <- sum(densities$x * densities$f.ctrls) / sum(densities$f.ctrls)
     means.cases <- sum(densities$x * densities$f.cases) / sum(densities$f.cases)
     return(c(ctrls=-means.ctrls, cases=means.cases))
+}
+
+#' Validate probability vectors
+#'
+#' Checks that the input vectors are numeric, don't have any NAs, and contain
+#' values that are probabilities.
+#'
+#' @param posterior, priors Vectors of probabilities.
+#' @return Throws an error if the vectors do not contain probabilities.
+#'
+#' @noRd
+validate.probabilities <- function(posterior, prior) {
+    stopifnot(is.numeric(posterior), is.numeric(prior))
+    if (length(prior) > 1 && length(prior) != length(posterior))
+        stop("Wrong length for the vector of prior probabilities.")
+    if (anyNA(posterior) || anyNA(prior))
+        stop("NAs not allowed in the vectors of probabilities.")
+    if (any(posterior < 0 | posterior > 1 | prior < 0 | prior > 1))
+        stop("Vector does not contain probabilities.")
 }
