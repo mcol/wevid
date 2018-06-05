@@ -140,10 +140,7 @@ wtrue.results <- function(studyname, y, posterior.p, prior.p) {
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities.crude <- Wdensities.crude(cleveland$y, W)
-#' densities.adj <- Wdensities.fromraw(densities.crude)
-#' plotWdists(densities.crude, densities.adj)
-#' 
+#'
 #' @export
 weightsofevidence <- function(posterior.p, prior.p) {
     validate.probabilities(posterior.p, prior.p)
