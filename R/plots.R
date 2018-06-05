@@ -19,15 +19,12 @@
 
 #' Plot the distribution of the weight of evidence in cases and in controls
 #'
-#' @import ggplot2
-#' @importFrom reshape2 melt
-#'
 #' @param Wdensities.unadj Unadjusted densities computed by
 #'        \code{\link{Wdensities.unadjusted}}.
 #' @param Wdensities.adj Adjusted densities computed by
 #'        \code{\link{Wdensities.fromraw}}.
-#' @param mask if not null, breaks y axis to show more detail of lower end
-#' @param distlabels Character vector of length 2
+#' @param mask if not null, breaks y axis to show more detail of lower end.
+#' @param distlabels Character vector of length 2.
 #'
 #' @examples
 #' data("cleveland") # load example dataset
@@ -35,7 +32,8 @@
 #' densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
 #' densities.adj <- Wdensities.fromraw(densities.unadj)
 #' plotWdists(densities.unadj, densities.adj)
-#' 
+#'
+#' @importFrom reshape2 melt
 #' @export
 plotWdists <- function(Wdensities.unadj, Wdensities.adj, mask=NULL,
                        distlabels=c("Crude", "Adjusted")) {
@@ -100,8 +98,6 @@ plotWdists <- function(Wdensities.unadj, Wdensities.adj, mask=NULL,
 
 #' Plot the cumulative frequency distributions in cases and in controls
 #'
-#' @import ggplot2
-#'
 #' @param densities Adjusted densities computed by
 #'        \code{\link{Wdensities.fromraw}}.
 #'
@@ -111,7 +107,7 @@ plotWdists <- function(Wdensities.unadj, Wdensities.adj, mask=NULL,
 #' densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
 #' densities.adj <- Wdensities.fromraw(densities.unadj)
 #' plotcumfreqs(densities.adj)
-#' 
+#'
 #' @export
 plotcumfreqs <- function(densities) {
     cumfreqs.ctrls <- cumfreqs(densities$f.ctrls, densities$x, densities$x.stepsize)
@@ -141,10 +137,6 @@ plotcumfreqs <- function(densities) {
 
 #' Plot crude and model-based ROC curves
 #'
-#' @import ggplot2
-#' @importFrom pROC roc
-#' @importFrom zoo rollmean
-#'
 #' @param densities Adjusted densities computed by
 #'        \code{\link{Wdensities.fromraw}}.
 #' @param y Binary outcome label (0 for controls, 1 for cases).
@@ -158,7 +150,9 @@ plotcumfreqs <- function(densities) {
 #' densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
 #' densities.adj <- Wdensities.fromraw(densities.unadj)
 #' plotroc(densities.adj, cleveland$y, W)
-#' 
+#'
+#' @importFrom pROC roc
+#' @importFrom zoo rollmean
 #' @export
 plotroc <- function(densities, y, W) {
     x.stepsize <- densities$x.stepsize
@@ -189,14 +183,12 @@ plotroc <- function(densities, y, W) {
     return(p)
 }
 
-#' plot log case/control density ratio against weight of evidence as a check that
+#' Plot log case/control density ratio against weight of evidence as a check that
 #' the densities are mathematically consistent
-#'
-#' @import ggplot2
 #'
 #' @param densities Adjusted densities computed by
 #'        \code{\link{Wdensities.fromraw}}.
-#' @param W Weight of evidence. (natural logs)
+#' @param W Weight of evidence (natural logs).
 #'
 #' @return ggpplot of natural log case/control density ratio against weight of evidence
 #' (should be a straight line of gradient 1 passing through the origin)
