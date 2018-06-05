@@ -78,6 +78,11 @@ reweight.densities <- function(theta, fhat.ctrls, fhat.cases,
 #' @noRd
 error.integrals <- function(theta, densities, wts) {
     wdens <- with(densities, reweight.densities(theta, f.ctrls, f.cases,
+                                                n.ctrls, n.cases, x, wts))
+    ## objective function is abs(log(ratio of normalizing constants)
+    obj <- abs(log(sum(wdens$f.ctrls / sum(wdens$f.cases))))
+    return(obj)
+}
 
 #' Summary evaluation of predictive performance
 #'
