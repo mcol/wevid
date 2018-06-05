@@ -24,7 +24,7 @@
 #' @param h Bandwidth size.
 #' @param n Length of vector \var{X}.
 #'
-#' @keywords internal
+#' @noRd
 fsmooth <- function(x, X, h, n) {
     ## density at x is weighted average of observed values
     ## with weights scaling with exp(-t^2)
@@ -37,7 +37,7 @@ fsmooth <- function(x, X, h, n) {
 #' @param q Probability distribution.
 #' @return The KL divergence expressed in nats.
 #'
-#' @keywords internal
+#' @noRd
 kl <- function(p, q) {
     kl <- p * log( p / q)
     kl[p==0] <- 0
@@ -50,12 +50,12 @@ kl <- function(p, q) {
 #' @param x Value expressed in natural log units (nats).
 #' @return Value expressed in bits.
 #'
-#' @keywords internal
+#' @noRd
 tobits <- function(x) {
   return(log2(exp(1)) * x)
 }
 
-#' @keywords internal
+#' @noRd
 reweight.densities <- function(theta, fhat.ctrls, fhat.cases,
                                n.ctrls, n.cases, xseq, wts) {
     mean.ctrls <- sum(fhat.ctrls * xseq) / sum(fhat.ctrls)
@@ -76,7 +76,7 @@ reweight.densities <- function(theta, fhat.ctrls, fhat.cases,
 }
 
 #' Evaluate objective function
-#' @keywords internal
+#' @noRd
 error.integrals <- function(theta, densities, wts) {
     wdens <- with(densities, reweight.densities(theta, f.ctrls, f.cases,
                                                 n.ctrls, n.cases, x, wts))
@@ -248,7 +248,7 @@ Wdensities.mix <- function(y, W, in.spike, range.xseq=c(-25, 25), x.stepsize=0.0
                 n.ctrls=n.ctrls, n.cases=n.cases, x.stepsize=x.stepsize))
 }
 
-#' @keywords internal
+#' @noRd
 density.spike.slab <- function(W, in.spike, xseq) {
     density.spike <- density(W[in.spike], bw="SJ", n=length(xseq),
                              from=min(xseq), to=max(xseq))
@@ -341,7 +341,7 @@ prop.belowthreshold <- function(densities, w.threshold) {
 
 #' Cumulative frequency distribution
 #'
-#' @keywords internal
+#' @noRd
 cumfreqs <- function(f, xseq, x.stepsize) {
     ## normalize f
     f <- f / sum(f * x.stepsize)
