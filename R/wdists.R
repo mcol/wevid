@@ -78,11 +78,6 @@ reweight.densities <- function(theta, fhat.ctrls, fhat.cases,
 #' @noRd
 error.integrals <- function(theta, densities, wts) {
     wdens <- with(densities, reweight.densities(theta, f.ctrls, f.cases,
-                                                n.ctrls, n.cases, x, wts))
-    ## objective function is abs(log(ratio of normalizing constants)
-    obj <- abs(log(sum(wdens$f.ctrls / sum(wdens$f.cases))))
-    return(obj)
-}
 
 #' Summary evaluation of predictive performance
 #'
@@ -215,7 +210,7 @@ Wdensities.fromraw <- function(densities) {
                           densities=densities, wts=wts,
                           lower=-0.5, upper=0.5)
     theta <- optim.result$par
-    cat("Optimal value of theta:", theta, "\n")
+    cat("Optimal value of reweighting parameter theta:", theta, "\n")
 
     wdens <- reweight.densities(theta, densities$f.ctrls, densities$f.cases,
                                 n.ctrls, n.cases,
@@ -236,6 +231,15 @@ Wdensities.fromraw <- function(densities) {
 #'        spike component, \code{FALSE} otherwise. Typically used where high
 #'        proportion of values of the predictor are zero.
 #'
+#' #' @examples
+#' data("fitonly") # load example dataset
+#' W <- with(fitonly, weightsofevidence(posterior.p, prior.p))
+#' in.spike <- W < -2
+#' densities.unadj <- Wdensities.mix(fitonly$y, W, in.spike=in.spike)
+#' densities.adj <- Wdensities.fromraw(densities.unadj)
+#' p <- plotWdists(densities.unadj, densities.adjusted)
+#' p + p + scale_y_continuous(limit=c(0, 0.5), expand=c(0, 0)) # truncate spike
+#'   
 #' @export
 Wdensities.mix <- function(y, W, in.spike, range.xseq=c(-25, 25), x.stepsize=0.01) {
     xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
@@ -264,7 +268,8 @@ density.spike.slab <- function(W, in.spike, xseq) {
     return(density.mix)
 }
 
-#' Compute area under the ROC curve according to model-based densities
+#' Compute area under the ROC curve according to model-based densities of weight of
+#' evidence
 #'
 #' @param densities Adjusted densities computed by
 #'        \code{\link{Wdensities.fromraw}}.
@@ -313,7 +318,7 @@ lambda.model <- function(densities) {
     return(lambda)
 }
 
-#' Proportions of cases and controls below a given threshold of W (natural logs)
+#' Proportions of cases and controls below a given threshold of weight of evidence
 #'
 #' @param densities Adjusted densities computed by
 #'        \code{\link{Wdensities.fromraw}}.
@@ -349,7 +354,7 @@ cumfreqs <- function(f, xseq, x.stepsize) {
     return(data.frame(x=xseq, F=cumsum(f * x.stepsize)))
 }
 
-#' Means of densities in cases and controls
+#' Means of densities of weight of evidence in cases and controls
 #'
 #' @param densities Adjusted densities computed by
 #'        \code{\link{Wdensities.fromraw}}.
