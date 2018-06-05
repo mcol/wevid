@@ -140,9 +140,9 @@ wtrue.results <- function(studyname, y, posterior.p, prior.p) {
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
-#' densities.adj <- Wdensities.fromraw(densities.unadj)
-#' plotWdists(densities.unadj, densities.adj)
+#' densities.crude <- Wdensities.crude(cleveland$y, W)
+#' densities.adj <- Wdensities.fromraw(densities.crude)
+#' plotWdists(densities.crude, densities.adj)
 #' 
 #' @export
 weightsofevidence <- function(posterior.p, prior.p) {
@@ -152,17 +152,17 @@ weightsofevidence <- function(posterior.p, prior.p) {
     return(W)
 }
 
-#' Calculate the unadjusted smoothed densities of W in cases and in controls
+#' Calculate the crude smoothed densities of W in cases and in controls
 #'
 #' @param y Binary outcome label (0 for controls, 1 for cases).
 #' @param W Weight of evidence.
 #' @param range.xseq Range of points where the curves should be sampled.
 #' @param x.stepsize Distance between each point.
 #' @param adjust.bw Bandwidth adjustment.
-#' @return unadjusted density object  
+#' @return Density object containing crude densities.
 #' @export
-Wdensities.unadjusted <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
-                                  adjust.bw=1) {
+Wdensities.crude <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
+                             adjust.bw=1) {
     n.ctrls <- sum(y == 0)
     n.cases <- sum(y == 1)
     if (n.ctrls + n.cases != length(y))
@@ -185,15 +185,14 @@ Wdensities.unadjusted <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
 #' Adjust the crude densities of weights of evidence in cases and controls
 #' to make them mathematically consistent
 #'
-#' @param densities Unadjusted densities computed by
-#'        \code{\link{Wdensities.unadjusted}}.
+#' @param densities Crude densities computed by \code{\link{Wdensities.crude}}.
 #'
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
-#' densities.adj <- Wdensities.fromraw(densities.unadj)
-#' plotWdists(densities.unadj, densities.adj)
+#' densities.crude <- Wdensities.crude(cleveland$y, W)
+#' densities.adj <- Wdensities.fromraw(densities.crude)
+#' plotWdists(densities.crude, densities.adj)
 #' 
 #' @export
 Wdensities.fromraw <- function(densities) {
@@ -275,8 +274,8 @@ density.spike.slab <- function(W, in.spike, xseq) {
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
-#' densities.adj <- Wdensities.fromraw(densities.unadj)
+#' densities.crude <- Wdensities.crude(cleveland$y, W)
+#' densities.adj <- Wdensities.fromraw(densities.crude)
 #' auroc.model(densities.adj)
 #'
 #' @seealso \code{\link{plotroc}}
@@ -301,8 +300,8 @@ auroc.model <- function(densities) {
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
-#' densities.adj <- Wdensities.fromraw(densities.unadj)
+#' densities.crude <- Wdensities.crude(cleveland$y, W)
+#' densities.adj <- Wdensities.fromraw(densities.crude)
 #' lambda.model(densities.adj)
 #' 
 #' @export
@@ -323,8 +322,8 @@ lambda.model <- function(densities) {
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
-#' densities.adj <- Wdensities.fromraw(densities.unadj)
+#' densities.crude <- Wdensities.crude(cleveland$y, W)
+#' densities.adj <- Wdensities.fromraw(densities.crude)
 #' w.threshold <- log(4) # threshold Bayes factor of 4
 #' prop.belowthreshold(densities.adj, w.threshold)
 #' 
