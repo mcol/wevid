@@ -120,7 +120,7 @@ wtrue.results <- function(studyname, y, posterior.p, prior.p) {
                                              length(loglikrat.ctrl)),
                           test.loglik=round(tobits(sum(loglik)), 2),
                           auroc=round(auroc, 3),
-                          loglikrat.all=round(tobits(mean.loglikrat), 2),
+                          loglikrat.all=round(tobits(mean.loglikrat), 2)
                           ) 
     names(results) <-
         c("Model", "Cases / controls",
