@@ -149,45 +149,6 @@ weightsofevidence <- function(posterior.p, prior.p) {
     return(W)
 }
 
-#' Calculate the crude smoothed densities of W in cases and in controls
-#'
-#' These functions allow to compute the smoothed densities of the weight of
-#' evidence in cases and in controls from the crude probabilities.
-#' \code{Wdensities.crude} is designed for the general case; if the model
-#' probabilities reflect a spike-slab mixture distribution, where a high
-#' proportion of values of the predictor are zero, then \code{Wdensities.mix}
-#' will be more appropriate.
-#'
-#' @name Wdensities
-#' @param y Binary outcome label (0 for controls, 1 for cases).
-#' @param W Weight of evidence.
-#' @param range.xseq Range of points where the curves should be sampled.
-#' @param x.stepsize Distance between each point.
-#' @param adjust.bw Bandwidth adjustment.
-#' @return Density object containing crude densities.
-#'
-#' @export
-Wdensities.crude <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
-                             adjust.bw=1) {
-    n.ctrls <- sum(y == 0)
-    n.cases <- sum(y == 1)
-    if (n.ctrls + n.cases != length(y))
-        stop("y contains values different from 0 or 1")
-
-    xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
-    fhat.cases.raw <- fhat.ctrls.raw <- numeric(length(xseq))
-    W.ctrls <- W[y == 0]
-    W.cases <- W[y == 1]
-    bw.ctrls <- bw.SJ(W.ctrls) * adjust.bw
-    bw.cases <- bw.SJ(W.cases) * adjust.bw
-    for(i in 1:length(xseq)) {
-        fhat.ctrls.raw[i] <- fsmooth(xseq[i], W.ctrls, h=bw.ctrls, n.ctrls)
-        fhat.cases.raw[i] <- fsmooth(xseq[i], W.cases, h=bw.cases, n.cases)
-    }
-    return(list(x=xseq, f.ctrls=fhat.ctrls.raw, f.cases=fhat.cases.raw,
-                n.ctrls=n.ctrls, n.cases=n.cases, x.stepsize=x.stepsize))
-}
-
 #' Adjust the crude densities of weights of evidence in cases and controls
 #' to make them mathematically consistent
 #'
@@ -228,6 +189,45 @@ Wdensities.fromraw <- function(densities) {
     cat("f.cases normalizes to", sum(f.cases * x.stepsize), "\n")
     cat("f.ctrls normalizes to", sum(f.ctrls * x.stepsize), "\n")
     return(list(x=xseq, f.ctrls=f.ctrls, f.cases=f.cases,
+                n.ctrls=n.ctrls, n.cases=n.cases, x.stepsize=x.stepsize))
+}
+
+#' Calculate the crude smoothed densities of W in cases and in controls
+#'
+#' These functions allow to compute the smoothed densities of the weight of
+#' evidence in cases and in controls from the crude probabilities.
+#' \code{Wdensities.crude} is designed for the general case; if the model
+#' probabilities reflect a spike-slab mixture distribution, where a high
+#' proportion of values of the predictor are zero, then \code{Wdensities.mix}
+#' will be more appropriate.
+#'
+#' @name Wdensities
+#' @param y Binary outcome label (0 for controls, 1 for cases).
+#' @param W Weight of evidence.
+#' @param range.xseq Range of points where the curves should be sampled.
+#' @param x.stepsize Distance between each point.
+#' @param adjust.bw Bandwidth adjustment.
+#' @return Density object containing crude densities.
+#'
+#' @export
+Wdensities.crude <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
+                             adjust.bw=1) {
+    n.ctrls <- sum(y == 0)
+    n.cases <- sum(y == 1)
+    if (n.ctrls + n.cases != length(y))
+        stop("y contains values different from 0 or 1")
+
+    xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
+    fhat.cases.raw <- fhat.ctrls.raw <- numeric(length(xseq))
+    W.ctrls <- W[y == 0]
+    W.cases <- W[y == 1]
+    bw.ctrls <- bw.SJ(W.ctrls) * adjust.bw
+    bw.cases <- bw.SJ(W.cases) * adjust.bw
+    for(i in 1:length(xseq)) {
+        fhat.ctrls.raw[i] <- fsmooth(xseq[i], W.ctrls, h=bw.ctrls, n.ctrls)
+        fhat.cases.raw[i] <- fsmooth(xseq[i], W.cases, h=bw.cases, n.cases)
+    }
+    return(list(x=xseq, f.ctrls=fhat.ctrls.raw, f.cases=fhat.cases.raw,
                 n.ctrls=n.ctrls, n.cases=n.cases, x.stepsize=x.stepsize))
 }
 
