@@ -104,12 +104,10 @@ plotWdists <- function(densities, mask=NULL,
 #'
 #' @export
 plotcumfreqs <- function(densities) {
-    cumfreqs.ctrls <- cumfreqs(densities$f.ctrls, densities$x, densities$x.stepsize)
-    cumfreqs.ctrls <- data.frame(status=rep("Controls", nrow(cumfreqs.ctrls)),
-                           W=cumfreqs.ctrls$x, F=cumfreqs.ctrls$F)
-    cumfreqs.cases <- cumfreqs(densities$f.cases, densities$x, densities$x.stepsize)
-    cumfreqs.cases <- data.frame(status=rep("Cases", nrow(cumfreqs.cases)),
-                                 W=cumfreqs.cases$x, F=cumfreqs.cases$F)
+    cumfreqs.ctrls <- data.frame(W=densities$x, F=densities$cumfreq.ctrls,
+                                 status="Controls")
+    cumfreqs.cases <- data.frame(W=densities$x, F=densities$cumfreq.cases,
+                                 status="Cases")
     cumfreqs <- rbind(cumfreqs.ctrls, cumfreqs.cases)
 
     breaks <- seq(0, 1, by=0.1)
@@ -147,10 +145,8 @@ plotcumfreqs <- function(densities) {
 #' @importFrom zoo rollmean
 #' @export
 plotroc <- function(densities, y, W) {
-    x.stepsize <- densities$x.stepsize
-    cumfreqs.ctrls <- cumfreqs(densities$f.ctrls, densities$x, x.stepsize)
-    cumfreqs.cases <- cumfreqs(densities$f.cases, densities$x, x.stepsize)
-    roc.model <- data.frame(x=1 - cumfreqs.ctrls$F, y=1 - cumfreqs.cases$F)
+    roc.model <- data.frame(x=1 - densities$cumfreq.ctrls,
+                            y=1 - densities$cumfreq.cases)
     roc.model$calc <- "Model-based"
     cat("Model-based AUROC", auroc.model(densities), "\n")
 

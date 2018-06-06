@@ -228,8 +228,14 @@ Wdensities <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
     f.ctrls <- wdens$f.ctrls / z
     cat("f.cases normalizes to", sum(f.cases * x.stepsize), "\n")
     cat("f.ctrls normalizes to", sum(f.ctrls * x.stepsize), "\n")
+
+    ## cumulative frequencies for the adjusted distributions
+    cumfreq.ctrls <- cumfreqs(f.ctrls, xseq, x.stepsize)$F
+    cumfreq.cases <- cumfreqs(f.cases, xseq, x.stepsize)$F
+
     return(list(x=xseq, f.ctrls=f.ctrls, f.cases=f.cases,
                 f.ctrls.crude=crude$f.ctrls, f.cases.crude=crude$f.cases,
+                cumfreq.ctrls=cumfreq.ctrls, cumfreq.cases=cumfreq.cases,
                 n.ctrls=n.ctrls, n.cases=n.cases, x.stepsize=x.stepsize))
 }
 
@@ -309,10 +315,8 @@ density.spike.slab <- function(W, in.spike, xseq) {
 #' @importFrom zoo rollmean
 #' @export
 auroc.model <- function(densities) {
-    x.stepsize <- densities$x.stepsize
-    cumfreqs.ctrls <- cumfreqs(densities$f.ctrls, densities$x, x.stepsize)
-    cumfreqs.cases <- cumfreqs(densities$f.cases, densities$x, x.stepsize)
-    roc.model <- data.frame(x=1 - cumfreqs.ctrls$F, y=1 - cumfreqs.cases$F)
+    roc.model <- data.frame(x=1 - densities$cumfreq.ctrls,
+                            y=1 - densities$cumfreq.cases)
     auroc.model <- -sum(diff(roc.model$x) * rollmean(roc.model$y, 2))
     return(auroc.model)
 }
@@ -352,12 +356,9 @@ lambda.model <- function(densities) {
 #' 
 #' @export
 prop.belowthreshold <- function(densities, w.threshold) {
-    x.stepsize <- densities$x.stepsize
     xseq.threshold.idx <- which(densities$x >= w.threshold)[1]
-    prop.ctrls <- round(cumfreqs(densities$f.ctrls, densities$x,
-                                 x.stepsize)[xseq.threshold.idx, 2], 3)
-    prop.cases <- round(cumfreqs(densities$f.cases, densities$x,
-                                 x.stepsize)[xseq.threshold.idx, 2], 3)
+    prop.ctrls <- round(densities$cumfreq.ctrls[xseq.threshold.idx], 3)
+    prop.cases <- round(densities$cumfreq.cases[xseq.threshold.idx], 3)
     return(c(ctrls=prop.ctrls, cases=prop.cases))
 }
 
