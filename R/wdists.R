@@ -277,6 +277,9 @@ Wdensities.crude <- function(y, W, xseq, adjust.bw=1) {
 #'
 #' @keywords internal
 Wdensities.mix <- function(y, W, xseq, in.spike) {
+    if (length(in.spike) != length(y))
+        stop("Length of in.spike parameter doesn't match length of y.")
+    stopifnot(is.logical(in.spike))
     Wdensity.mix.ctrls <- density.spike.slab(W[y==0], in.spike[y==0], xseq)
     Wdensity.mix.cases <- density.spike.slab(W[y==1], in.spike[y==1], xseq)
     return(list(f.ctrls=Wdensity.mix.ctrls$y, f.cases=Wdensity.mix.cases$y))
