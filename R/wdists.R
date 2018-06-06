@@ -252,7 +252,10 @@ Wdensities <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
 #' @param W Weight of evidence.
 #' @param xseq Sequence of points where the curves should be sampled.
 #' @param adjust.bw Bandwidth adjustment.
-#' @return Density object containing crude densities.
+#'
+#' @return
+#' List of crude densities for controls and cases sampled at each point in the
+#' range provided.
 #'
 #' @keywords internal
 Wdensities.crude <- function(y, W, xseq, adjust.bw=1) {
@@ -377,7 +380,10 @@ cumfreqs <- function(f, xseq, x.stepsize) {
 #' Means of densities of weight of evidence in cases and controls
 #'
 #' @param densities Densities object produced by \code{\link{Wdensities}}.
-#' @return numeric vector of length 2: mean densities in controls and in cases.
+#'
+#' @return
+#' Numeric vector of length 2 listing the mean densities of the weight
+#' of evidence in controls and in cases.
 #'
 #' @seealso \code{\link{lambda.model}}
 #' @export

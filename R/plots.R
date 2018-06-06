@@ -20,14 +20,28 @@
 #' Plot the distribution of the weight of evidence in cases and in controls
 #'
 #' @param densities Densities object produced by \code{\link{Wdensities}}.
-#' @param mask if not null, breaks y axis to show more detail of lower end.
+#' @param mask If not \code{NULL}, breaks the y axis to show more detail of
+#'        lower end.
 #' @param distlabels Character vector of length 2.
+#'
+#' @return
+#' A ggplot object representing the distributions of crude and model-based
+#' weights of evidence in cases and in controls.
 #'
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
 #' densities <- Wdensities(cleveland$y, W)
 #' plotWdists(densities)
+#'
+#' # Example which requires fitting a mixture distribution
+#' data("fitonly")
+#' W <- with(fitonly, weightsofevidence(posterior.p, prior.p))
+#' densities <- Wdensities(fitonly$y, W, in.spike=W < -2)
+#'
+#' # truncate spike
+#' p <- plotWdists(densities)
+#' p + ggplot2::scale_y_continuous(limits=c(0, 0.5), expand=c(0, 0))
 #'
 #' @importFrom reshape2 melt
 #' @export
@@ -96,6 +110,10 @@ plotWdists <- function(densities, mask=NULL,
 #'
 #' @param densities Densities object produced by \code{\link{Wdensities}}.
 #'
+#' @return
+#' A ggplot object representing the cumulative frequency distributions of the
+#' smoothed densities of the weights of evidence in cases and in controls.
+#'
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
@@ -130,10 +148,9 @@ plotcumfreqs <- function(densities) {
 #' Plot crude and model-based ROC curves
 #'
 #' @param densities Densities object produced by \code{\link{Wdensities}}.
-#' @param y Binary outcome label (0 for controls, 1 for cases).
-#' @param W Weight of evidence (natural logs).
 #'
-#' @return ggplot of crude and model-based ROC curves
+#' @return
+#' A ggplot object representing crude and model-based ROC curves.
 #'
 #' @examples
 #' data("cleveland") # load example dataset
@@ -175,10 +192,11 @@ plotroc <- function(densities) {
 #' the densities are mathematically consistent
 #'
 #' @param densities Densities object produced by \code{\link{Wdensities}}.
-#' @param W Weight of evidence (natural logs).
 #'
-#' @return ggpplot of natural log case/control density ratio against weight of evidence
-#' (should be a straight line of gradient 1 passing through the origin)
+#' @return
+#' A ggplot object representing a plot of the natural log case/control density
+#' ratio against the weight of evidence (should be a straight line of gradient
+#' 1 passing through the origin).
 #'
 #' @examples
 #' data("cleveland") # load example dataset
