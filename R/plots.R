@@ -150,7 +150,7 @@ plotroc <- function(densities) {
     roc.model$calc <- "Model-based"
     cat("Model-based AUROC", auroc.model(densities), "\n")
 
-    roc.crude <- roc(densities$y, densities$W)
+    roc.crude <- roc(densities$y, densities$W, direction="<"))
     roc.crude <- data.frame(x=1 - roc.crude$specificities,
                             y=roc.crude$sensitivities)
     roc.crude$calc <- "Crude"
