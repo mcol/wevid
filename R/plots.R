@@ -19,30 +19,26 @@
 
 #' Plot the distribution of the weight of evidence in cases and in controls
 #'
-#' @param Wdensities.crude Crude densities computed by
-#'        \code{\link{Wdensities.crude}} or \code{\link{Wdensities.mix}}.
-#' @param Wdensities.adj Adjusted densities computed by
-#'        \code{\link{Wdensities.fromraw}}.
+#' @param densities Densities object produced by \code{\link{Wdensities}}.
 #' @param mask if not null, breaks y axis to show more detail of lower end.
 #' @param distlabels Character vector of length 2.
 #'
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities.crude <- Wdensities.crude(cleveland$y, W)
-#' densities.adj <- Wdensities.fromraw(densities.crude)
-#' plotWdists(densities.crude, densities.adj)
+#' densities <- Wdensities(cleveland$y, W)
+#' plotWdists(densities)
 #'
 #' @importFrom reshape2 melt
 #' @export
-plotWdists <- function(Wdensities.crude, Wdensities.adj, mask=NULL,
+plotWdists <- function(densities, mask=NULL,
                        distlabels=c("Crude", "Adjusted")) {
 
-    dists.data <- data.frame(W=Wdensities.crude$x,
-                             Controls=Wdensities.crude$f.ctrls,
-                             Cases=Wdensities.crude$f.cases,
-                             Controls.adj=Wdensities.adj$f.ctrls,
-                             Cases.adj=Wdensities.adj$f.cases)
+    dists.data <- data.frame(W=densities$x,
+                             Controls=densities$f.ctrls.crude,
+                             Cases=densities$f.cases.crude,
+                             Controls.adj=densities$f.ctrls,
+                             Cases.adj=densities$f.cases)
     dists.long <- melt(dists.data, id="W")
     names(dists.long)[2] <- "status"
     dists.long$adjusted <- ifelse(grepl(".adj", dists.long$status),
@@ -98,15 +94,13 @@ plotWdists <- function(Wdensities.crude, Wdensities.adj, mask=NULL,
 
 #' Plot the cumulative frequency distributions in cases and in controls
 #'
-#' @param densities Adjusted densities computed by
-#'        \code{\link{Wdensities.fromraw}}.
+#' @param densities Densities object produced by \code{\link{Wdensities}}.
 #'
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities.crude <- Wdensities.crude(cleveland$y, W)
-#' densities.adj <- Wdensities.fromraw(densities.crude)
-#' plotcumfreqs(densities.adj)
+#' densities <- Wdensities(cleveland$y, W)
+#' plotcumfreqs(densities)
 #'
 #' @export
 plotcumfreqs <- function(densities) {
@@ -137,8 +131,7 @@ plotcumfreqs <- function(densities) {
 
 #' Plot crude and model-based ROC curves
 #'
-#' @param densities Adjusted densities computed by
-#'        \code{\link{Wdensities.fromraw}}.
+#' @param densities Densities object produced by \code{\link{Wdensities}}.
 #' @param y Binary outcome label (0 for controls, 1 for cases).
 #' @param W Weight of evidence (natural logs).
 #'
@@ -147,9 +140,8 @@ plotcumfreqs <- function(densities) {
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities.crude <- Wdensities.crude(cleveland$y, W)
-#' densities.adj <- Wdensities.fromraw(densities.crude)
-#' plotroc(densities.adj, cleveland$y, W)
+#' densities <- Wdensities(cleveland$y, W)
+#' plotroc(densities, cleveland$y, W)
 #'
 #' @importFrom pROC roc
 #' @importFrom zoo rollmean
@@ -186,8 +178,7 @@ plotroc <- function(densities, y, W) {
 #' Plot log case/control density ratio against weight of evidence as a check that
 #' the densities are mathematically consistent
 #'
-#' @param densities Adjusted densities computed by
-#'        \code{\link{Wdensities.fromraw}}.
+#' @param densities Densities object produced by \code{\link{Wdensities}}.
 #' @param W Weight of evidence (natural logs).
 #'
 #' @return ggpplot of natural log case/control density ratio against weight of evidence
@@ -196,9 +187,8 @@ plotroc <- function(densities, y, W) {
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities.crude <- Wdensities.crude(cleveland$y, W)
-#' densities.adj <- Wdensities.fromraw(densities.crude)
-#' plotW(densities.adj, W)
+#' densities <- Wdensities(cleveland$y, W)
+#' plotW(densities, W)
 #' 
 #' @export
 plotW <- function(densities, W) {

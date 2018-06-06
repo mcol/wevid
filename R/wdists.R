@@ -149,36 +149,76 @@ weightsofevidence <- function(posterior.p, prior.p) {
     return(W)
 }
 
-#' Adjust the crude densities of weights of evidence in cases and controls
-#' to make them mathematically consistent
+#' Compute densities of weights of evidence in cases and controls
 #'
-#' @param densities Crude densities computed by \code{\link{Wdensities.crude}}
-#'        or \code{\link{Wdensities.mix}}.
+#' The function computes smoothed densities of the weight of evidence in
+#' cases and in controls from the crude probabilities, then adjusts them to
+#' make them mathematically consistent.
+#'
+#' If the model probabilities reflect a spike-slab mixture distribution, where
+#' a high proportion of values of the predictor are zero, these can be
+#' indicated through the \code{in.spike} argument. In the general case, it's
+#' fine to leave it set to \code{NULL}.
+#'
+#' @param y Binary outcome label (0 for controls, 1 for cases).
+#' @param W Weight of evidence.
+#' @param range.xseq Range of points where the curves should be sampled.
+#' @param x.stepsize Distance between each point.
+#' @param adjust.bw Bandwidth adjustment for the Gaussian kernel density
+#'        estimator. By default it's set to 1 (no adjustment), setting it to
+#'        a value smaller/larger than 1 reduces/increases the smoothing of
+#'        the kernel. This argument is ignored if \code{in.spike} is not
+#'        \code{NULL}.
+#' @param in.spike If \code{NULL}, the distributions of the weights of evidence
+#'        are assumed to be approximately gaussian. If instead a spike-slab
+#'        mixture distribution should be assumed, the this must be a logical
+#'        vector of the same length as \code{y}, with elements set to \code{TRUE}
+#'        if in the spike component, \code{FALSE} otherwise. Typically used
+#'        where high proportion of values of the predictor are zero.
+#'
+#' @return
+#' A densities object that contains the information necessary to compute
+#' summary measures and generate plots.
 #'
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities.crude <- Wdensities.crude(cleveland$y, W)
-#' densities.adj <- Wdensities.fromraw(densities.crude)
-#' plotWdists(densities.crude, densities.adj)
+#' densities <- Wdensities(cleveland$y, W)
+#'
+#' # Example which requires fitting a mixture distribution
+#' data("fitonly")
+#' W <- with(fitonly, weightsofevidence(posterior.p, prior.p))
+#' densities <- Wdensities(fitonly$y, W, in.spike=W < -2)
 #'
 #' @export
-Wdensities.fromraw <- function(densities) {
-    xseq <- densities$x
-    x.stepsize <- densities$x.stepsize
-    n.ctrls <- densities$n.ctrls
-    n.cases <- densities$n.cases
+Wdensities <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
+                       adjust.bw=1, in.spike=NULL) {
+    n.ctrls <- sum(y == 0)
+    n.cases <- sum(y == 1)
+    if (n.ctrls + n.cases != length(y))
+        stop("y contains values different from 0 or 1")
+
+    xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
+    if (is.null(in.spike)) {
+        crude <- Wdensities.crude(y, W, xseq, adjust.bw)
+    } else {
+        crude <- Wdensities.mix(y, W, xseq, in.spike)
+    }
+    crude$x <- xseq
+    crude$n.ctrls <- n.ctrls
+    crude$n.cases <- n.cases
+
     wts <- cbind(exp(-0.5 * xseq) * n.ctrls,
                  exp(+0.5 * xseq) * n.cases)
     wts  <- wts / rowSums(wts) # normalize weights
 
     optim.result <- optim(par=0, fn=error.integrals, method="L-BFGS-B",
-                          densities=densities, wts=wts,
+                          densities=crude, wts=wts,
                           lower=-0.5, upper=0.5)
     theta <- optim.result$par
     cat("Optimal value of reweighting parameter theta:", theta, "\n")
 
-    wdens <- reweight.densities(theta, densities$f.ctrls, densities$f.cases,
+    wdens <- reweight.densities(theta, crude$f.ctrls, crude$f.cases,
                                 n.ctrls, n.cases,
                                 xseq, wts)
 
@@ -189,6 +229,7 @@ Wdensities.fromraw <- function(densities) {
     cat("f.cases normalizes to", sum(f.cases * x.stepsize), "\n")
     cat("f.ctrls normalizes to", sum(f.ctrls * x.stepsize), "\n")
     return(list(x=xseq, f.ctrls=f.ctrls, f.cases=f.cases,
+                f.ctrls.crude=crude$f.ctrls, f.cases.crude=crude$f.cases,
                 n.ctrls=n.ctrls, n.cases=n.cases, x.stepsize=x.stepsize))
 }
 
@@ -201,23 +242,16 @@ Wdensities.fromraw <- function(densities) {
 #' proportion of values of the predictor are zero, then \code{Wdensities.mix}
 #' will be more appropriate.
 #'
-#' @name Wdensities
 #' @param y Binary outcome label (0 for controls, 1 for cases).
 #' @param W Weight of evidence.
-#' @param range.xseq Range of points where the curves should be sampled.
-#' @param x.stepsize Distance between each point.
+#' @param xseq Sequence of points where the curves should be sampled.
 #' @param adjust.bw Bandwidth adjustment.
 #' @return Density object containing crude densities.
 #'
-#' @export
-Wdensities.crude <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
-                             adjust.bw=1) {
+#' @keywords internal
+Wdensities.crude <- function(y, W, xseq, adjust.bw=1) {
     n.ctrls <- sum(y == 0)
     n.cases <- sum(y == 1)
-    if (n.ctrls + n.cases != length(y))
-        stop("y contains values different from 0 or 1")
-
-    xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
     fhat.cases.raw <- fhat.ctrls.raw <- numeric(length(xseq))
     W.ctrls <- W[y == 0]
     W.cases <- W[y == 1]
@@ -227,36 +261,19 @@ Wdensities.crude <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
         fhat.ctrls.raw[i] <- fsmooth(xseq[i], W.ctrls, h=bw.ctrls, n.ctrls)
         fhat.cases.raw[i] <- fsmooth(xseq[i], W.cases, h=bw.cases, n.cases)
     }
-    return(list(x=xseq, f.ctrls=fhat.ctrls.raw, f.cases=fhat.cases.raw,
-                n.ctrls=n.ctrls, n.cases=n.cases, x.stepsize=x.stepsize))
+    return(list(f.ctrls=fhat.ctrls.raw, f.cases=fhat.cases.raw))
 }
 
-#' @rdname Wdensities
+#' @rdname Wdensities.crude
 #' @param in.spike Logical vector same length as \code{y}, \code{TRUE} if in
 #'        spike component, \code{FALSE} otherwise. Typically used where high
 #'        proportion of values of the predictor are zero.
 #'
-#' @examples
-#' data("fitonly") # load example dataset
-#' W <- with(fitonly, weightsofevidence(posterior.p, prior.p))
-#' in.spike <- W < -2
-#' densities.unadj <- Wdensities.mix(fitonly$y, W, in.spike=in.spike)
-#' densities.adj <- Wdensities.fromraw(densities.unadj)
-#' p <- plotWdists(densities.unadj, densities.adj)
-#' p + ggplot2::scale_y_continuous(limits=c(0, 0.5)) # truncate spike
-#'
-#' @export
-Wdensities.mix <- function(y, W, in.spike, range.xseq=c(-25, 25), x.stepsize=0.01) {
-    xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
-    n.ctrls <- sum(y == 0)
-    n.cases <- sum(y == 1)
-    if (n.ctrls + n.cases != length(y))
-        stop("y contains values different from 0 or 1")
-
+#' @keywords internal
+Wdensities.mix <- function(y, W, xseq, in.spike) {
     Wdensity.mix.ctrls <- density.spike.slab(W[y==0], in.spike[y==0], xseq)
     Wdensity.mix.cases <- density.spike.slab(W[y==1], in.spike[y==1], xseq)
-    return(list(x=xseq, f.ctrls=Wdensity.mix.ctrls$y, f.cases=Wdensity.mix.cases$y,
-                n.ctrls=n.ctrls, n.cases=n.cases, x.stepsize=x.stepsize))
+    return(list(f.ctrls=Wdensity.mix.ctrls$y, f.cases=Wdensity.mix.cases$y))
 }
 
 #' @noRd
@@ -276,8 +293,7 @@ density.spike.slab <- function(W, in.spike, xseq) {
 #' Compute area under the ROC curve according to model-based densities of weight of
 #' evidence
 #'
-#' @param densities Adjusted densities computed by
-#'        \code{\link{Wdensities.fromraw}}.
+#' @param densities Densities object produced by \code{\link{Wdensities}}.
 #' @return The area under the model-based ROC curve computed from the densities
 #' of the weight of evidence in cases and noncases. This model-based ROC curve
 #' is always concave (if the densities have been adjusted to make them
@@ -286,9 +302,8 @@ density.spike.slab <- function(W, in.spike, xseq) {
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities.crude <- Wdensities.crude(cleveland$y, W)
-#' densities.adj <- Wdensities.fromraw(densities.crude)
-#' auroc.model(densities.adj)
+#' densities <- Wdensities(cleveland$y, W)
+#' auroc.model(densities)
 #'
 #' @seealso \code{\link{plotroc}}
 #' @importFrom zoo rollmean
@@ -305,16 +320,14 @@ auroc.model <- function(densities) {
 #' Compute the expected information for discrimination (expected weight of evidence)
 #' from the model-based densities
 #'
-#' @param densities Adjusted densities computed by
-#'        \code{\link{Wdensities.fromraw}}.
+#' @param densities Densities object produced by \code{\link{Wdensities}}.
 #' @return The model-based expected information for discrimination.
 #'
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities.crude <- Wdensities.crude(cleveland$y, W)
-#' densities.adj <- Wdensities.fromraw(densities.crude)
-#' lambda.model(densities.adj)
+#' densities <- Wdensities(cleveland$y, W)
+#' lambda.model(densities)
 #' 
 #' @export
 lambda.model <- function(densities) {
@@ -325,8 +338,7 @@ lambda.model <- function(densities) {
 
 #' Proportions of cases and controls below a given threshold of weight of evidence
 #'
-#' @param densities Adjusted densities computed by
-#'        \code{\link{Wdensities.fromraw}}.
+#' @param densities Densities object produced by \code{\link{Wdensities}}.
 #' @param w.threshold Threshold value of weight of evidence (natural logs).
 #' @return Numeric vector of length 2 listing the proportions of controls and
 #' cases with weight of evidence below the given threshold.
@@ -334,10 +346,9 @@ lambda.model <- function(densities) {
 #' @examples
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities.crude <- Wdensities.crude(cleveland$y, W)
-#' densities.adj <- Wdensities.fromraw(densities.crude)
+#' densities <- Wdensities(cleveland$y, W)
 #' w.threshold <- log(4) # threshold Bayes factor of 4
-#' prop.belowthreshold(densities.adj, w.threshold)
+#' prop.belowthreshold(densities, w.threshold)
 #' 
 #' @export
 prop.belowthreshold <- function(densities, w.threshold) {
@@ -361,8 +372,7 @@ cumfreqs <- function(f, xseq, x.stepsize) {
 
 #' Means of densities of weight of evidence in cases and controls
 #'
-#' @param densities Adjusted densities computed by
-#'        \code{\link{Wdensities.fromraw}}.
+#' @param densities Densities object produced by \code{\link{Wdensities}}.
 #' @return numeric vector of length 2: mean densities in controls and in cases.
 #'
 #' @seealso \code{\link{lambda.model}}
