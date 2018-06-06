@@ -139,18 +139,18 @@ plotcumfreqs <- function(densities) {
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
 #' densities <- Wdensities(cleveland$y, W)
-#' plotroc(densities, cleveland$y, W)
+#' plotroc(densities)
 #'
 #' @importFrom pROC roc
 #' @importFrom zoo rollmean
 #' @export
-plotroc <- function(densities, y, W) {
+plotroc <- function(densities) {
     roc.model <- data.frame(x=1 - densities$cumfreq.ctrls,
                             y=1 - densities$cumfreq.cases)
     roc.model$calc <- "Model-based"
     cat("Model-based AUROC", auroc.model(densities), "\n")
 
-    roc.crude <- roc(y, W)
+    roc.crude <- roc(densities$y, densities$W)
     roc.crude <- data.frame(x=1 - roc.crude$specificities,
                             y=roc.crude$sensitivities)
     roc.crude$calc <- "Crude"
@@ -184,14 +184,13 @@ plotroc <- function(densities, y, W) {
 #' data("cleveland") # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
 #' densities <- Wdensities(cleveland$y, W)
-#' plotW(densities, W)
+#' plotW(densities)
 #' 
 #' @export
-plotW <- function(densities, W) {
+plotW <- function(densities) {
     densities.logratio <- log(densities$f.cases / densities$f.ctrls)
-    wratios <- data.frame(
-        Wdens=densities$x, Wratio=densities.logratio)
-    axislimits <- 1.5 * c(min(W), max(W))
+    wratios <- data.frame(Wdens=densities$x, Wratio=densities.logratio)
+    axislimits <- 1.5 * range(densities$W)
     p <- ggplot(wratios, aes(x=Wdens, y=densities.logratio)) +
         geom_line(size=1.25) + coord_fixed() +
         scale_x_continuous(limits=axislimits, expand=c(0, 0)) +
