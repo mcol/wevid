@@ -236,15 +236,15 @@ Wdensities.fromraw <- function(densities) {
 #'        spike component, \code{FALSE} otherwise. Typically used where high
 #'        proportion of values of the predictor are zero.
 #'
-#' #' @examples
+#' @examples
 #' data("fitonly") # load example dataset
 #' W <- with(fitonly, weightsofevidence(posterior.p, prior.p))
 #' in.spike <- W < -2
 #' densities.unadj <- Wdensities.mix(fitonly$y, W, in.spike=in.spike)
 #' densities.adj <- Wdensities.fromraw(densities.unadj)
-#' p <- plotWdists(densities.unadj, densities.adjusted)
-#' p + p + scale_y_continuous(limit=c(0, 0.5), expand=c(0, 0)) # truncate spike
-#'   
+#' p <- plotWdists(densities.unadj, densities.adj)
+#' p + ggplot2::scale_y_continuous(limits=c(0, 0.5)) # truncate spike
+#'
 #' @export
 Wdensities.mix <- function(y, W, in.spike, range.xseq=c(-25, 25), x.stepsize=0.01) {
     xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
