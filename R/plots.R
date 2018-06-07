@@ -84,8 +84,8 @@ plotWdists <- function(densities, mask=NULL,
     }
 
     expand <- c(0.005, 0.005)
-    p <- ggplot(dists.long, aes(x=tobits(dists.long$W), y=value,
-                                linetype=adjusted, colour=status)) +
+    p <- ggplot(dists.long, aes_(x=quote(tobits(W)), y=~value,
+                                linetype=~adjusted, colour=~status)) +
         geom_line(size=1.25) +
         scale_linetype_manual(values=c("dotted", "solid")) +
         scale_color_manual(values=c(Controls='#000000', Cases='#FF0000')) +
@@ -131,7 +131,7 @@ plotcumfreqs <- function(densities) {
 
     breaks <- seq(0, 1, by=0.1)
     expand <- c(0.005, 0.005)
-    p <- ggplot(cumfreqs, aes(x=tobits(W), y=F, colour=status)) +
+    p <- ggplot(cumfreqs, aes_(x=quote(tobits(W)), y=~F, colour=~status)) +
         geom_line(size=1.25) +
         scale_color_manual(values=c(Controls='#000000', Cases='#FF0000')) +
         scale_x_continuous(limits=2 * c(min(W), max(W)), expand=expand) +
@@ -181,7 +181,7 @@ plotroc <- function(densities) {
 
     breaks <- seq(0, 1, by=0.1)
     expand <- c(0.005, 0.005)
-    p <- ggplot(roc, aes(x=x, y=y, colour=calc)) +
+    p <- ggplot(roc, aes_(x=~x, y=~y, colour=~calc)) +
         geom_line(size=1.25) + coord_fixed() +
         scale_x_continuous(limits=c(0, 1), breaks=breaks, expand=expand) +
         scale_y_continuous(limits=c(0, 1), breaks=breaks, expand=expand) +
@@ -216,7 +216,7 @@ plotW <- function(densities) {
     densities.logratio <- log(densities$f.cases / densities$f.ctrls)
     wratios <- data.frame(Wdens=densities$x, Wratio=densities.logratio)
     axislimits <- 1.5 * range(densities$W)
-    p <- ggplot(wratios, aes(x=Wdens, y=densities.logratio)) +
+    p <- ggplot(wratios, aes_(x=~Wdens, y=~Wratio)) +
         geom_line(size=1.25) + coord_fixed() +
         scale_x_continuous(limits=axislimits, expand=c(0, 0)) +
         scale_y_continuous(limits=axislimits, expand=c(0, 0)) +
