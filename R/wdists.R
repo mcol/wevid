@@ -304,6 +304,23 @@ density.spike.slab <- function(W, in.spike, xseq) {
     return(density.mix)
 }
 
+#' Means of densities of weight of evidence in cases and controls
+#'
+#' @param densities Densities object produced by \code{\link{Wdensities}}.
+#'
+#' @return
+#' Numeric vector of length 2 listing the mean densities of the weight
+#' of evidence in controls and in cases.
+#'
+#' @seealso \code{\link{lambda.model}}
+#' @export
+means.densities <- function(densities) {
+    validate.densities(densities)
+    means.ctrls <- sum(densities$x * densities$f.ctrls) / sum(densities$f.ctrls)
+    means.cases <- sum(densities$x * densities$f.cases) / sum(densities$f.cases)
+    return(c(ctrls=-means.ctrls, cases=means.cases))
+}
+
 #' Compute area under the ROC curve according to model-based densities of weight of
 #' evidence
 #'
@@ -378,23 +395,6 @@ cumfreqs <- function(f, x.stepsize) {
     ## normalize f
     f <- f / sum(f * x.stepsize)
     return(cumsum(f * x.stepsize))
-}
-
-#' Means of densities of weight of evidence in cases and controls
-#'
-#' @param densities Densities object produced by \code{\link{Wdensities}}.
-#'
-#' @return
-#' Numeric vector of length 2 listing the mean densities of the weight
-#' of evidence in controls and in cases.
-#'
-#' @seealso \code{\link{lambda.model}}
-#' @export
-means.densities <- function(densities) {
-    validate.densities(densities)
-    means.ctrls <- sum(densities$x * densities$f.ctrls) / sum(densities$f.ctrls)
-    means.cases <- sum(densities$x * densities$f.cases) / sum(densities$f.cases)
-    return(c(ctrls=-means.ctrls, cases=means.cases))
 }
 
 #' Validate densities object
