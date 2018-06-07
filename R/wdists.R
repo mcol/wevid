@@ -233,10 +233,12 @@ Wdensities <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
     cumfreq.ctrls <- cumfreqs(f.ctrls, xseq, x.stepsize)$F
     cumfreq.cases <- cumfreqs(f.cases, xseq, x.stepsize)$F
 
-    return(list(y=y, W=W, x=xseq, f.ctrls=f.ctrls, f.cases=f.cases,
+    obj <- list(y=y, W=W, x=xseq, f.ctrls=f.ctrls, f.cases=f.cases,
                 f.ctrls.crude=crude$f.ctrls, f.cases.crude=crude$f.cases,
                 cumfreq.ctrls=cumfreq.ctrls, cumfreq.cases=cumfreq.cases,
-                n.ctrls=n.ctrls, n.cases=n.cases, x.stepsize=x.stepsize))
+                n.ctrls=n.ctrls, n.cases=n.cases, x.stepsize=x.stepsize)
+    class(obj) <- "Wdensities"
+    return(obj)
 }
 
 #' Calculate the crude smoothed densities of W in cases and in controls
