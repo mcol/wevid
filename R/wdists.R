@@ -304,17 +304,24 @@ density.spike.slab <- function(W, in.spike, xseq) {
     return(density.mix)
 }
 
-#' Means of densities of weight of evidence in cases and controls
+#' Summary evaluation of predictive performance
 #'
-#' @param x Densities object produced by \code{\link{Wdensities}}.
+#' @param x,densities Densities object produced by \code{\link{Wdensities}}.
 #' @param ... Further arguments passed to or from other methods. These are
 #'        currently ignored.
 #'
 #' @return
-#' Numeric vector of length 2 listing the mean densities of the weight
+#' \code{mean} returns a numeric vector listing the mean densities of the weight
 #' of evidence in controls and in cases.
 #'
-#' @seealso \code{\link{lambda.model}}
+#' @examples
+#' data("cleveland") # load example dataset
+#' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
+#' densities <- Wdensities(cleveland$y, W)
+#' mean(densities)
+#' auroc.model(densities)
+#' lambda.model(densities)
+#'
 #' @rdname summary.Wdensities
 #' @export
 mean.Wdensities <- function(x, ...) {
@@ -324,22 +331,11 @@ mean.Wdensities <- function(x, ...) {
     return(c(ctrls=-means.ctrls, cases=means.cases))
 }
 
-#' Compute area under the ROC curve according to model-based densities of weight of
-#' evidence
+#' @return
+#' \code{auroc.model} returns the area under the ROC curve according to the
+#' model-based densities of weight of evidence.
 #'
-#' @param densities Densities object produced by \code{\link{Wdensities}}.
-#' @return The area under the model-based ROC curve computed from the densities
-#' of the weight of evidence in cases and noncases. This model-based ROC curve
-#' is always concave (if the densities have been adjusted to make them
-#' mathematically consistent).
-#'
-#' @examples
-#' data("cleveland") # load example dataset
-#' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities <- Wdensities(cleveland$y, W)
-#' auroc.model(densities)
-#'
-#' @seealso \code{\link{plotroc}}
+#' @rdname summary.Wdensities
 #' @importFrom zoo rollmean
 #' @export
 auroc.model <- function(densities) {
@@ -349,18 +345,11 @@ auroc.model <- function(densities) {
     return(auroc.model)
 }
 
-#' Compute the expected information for discrimination (expected weight of evidence)
-#' from the model-based densities
+#' @return
+#' \code{lambda.model} returns the expected weight of evidence (expected
+#' information for discrimination) in bits from the model-based densities.
 #'
-#' @param densities Densities object produced by \code{\link{Wdensities}}.
-#' @return The model-based expected information for discrimination.
-#'
-#' @examples
-#' data("cleveland") # load example dataset
-#' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities <- Wdensities(cleveland$y, W)
-#' lambda.model(densities)
-#' 
+#' @rdname summary.Wdensities
 #' @export
 lambda.model <- function(densities) {
     wts.ctrlscases <- with(densities, c(n.ctrls, n.cases) / (n.ctrls + n.cases))
