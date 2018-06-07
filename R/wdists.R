@@ -306,16 +306,19 @@ density.spike.slab <- function(W, in.spike, xseq) {
 
 #' Means of densities of weight of evidence in cases and controls
 #'
-#' @param densities Densities object produced by \code{\link{Wdensities}}.
+#' @param x Densities object produced by \code{\link{Wdensities}}.
+#' @param ... Further arguments passed to or from other methods. These are
+#'        currently ignored.
 #'
 #' @return
 #' Numeric vector of length 2 listing the mean densities of the weight
 #' of evidence in controls and in cases.
 #'
 #' @seealso \code{\link{lambda.model}}
+#' @rdname summary.Wdensities
 #' @export
-means.densities <- function(densities) {
-    validate.densities(densities)
+mean.Wdensities <- function(x, ...) {
+    validate.densities((densities <- x))
     means.ctrls <- sum(densities$x * densities$f.ctrls) / sum(densities$f.ctrls)
     means.cases <- sum(densities$x * densities$f.cases) / sum(densities$f.cases)
     return(c(ctrls=-means.ctrls, cases=means.cases))
@@ -361,7 +364,7 @@ auroc.model <- function(densities) {
 #' @export
 lambda.model <- function(densities) {
     wts.ctrlscases <- with(densities, c(n.ctrls, n.cases) / (n.ctrls + n.cases))
-    lambda <- sum(wts.ctrlscases * means.densities(densities)) / log(2)
+    lambda <- sum(wts.ctrlscases * mean(densities)) / log(2)
     return(lambda)
 }
 
