@@ -230,8 +230,8 @@ Wdensities <- function(y, W, range.xseq=c(-25, 25), x.stepsize=0.01,
     cat("f.ctrls normalizes to", sum(f.ctrls * x.stepsize), "\n")
 
     ## cumulative frequencies for the adjusted distributions
-    cumfreq.ctrls <- cumfreqs(f.ctrls, xseq, x.stepsize)$F
-    cumfreq.cases <- cumfreqs(f.cases, xseq, x.stepsize)$F
+    cumfreq.ctrls <- cumfreqs(f.ctrls, x.stepsize)
+    cumfreq.cases <- cumfreqs(f.cases, x.stepsize)
 
     obj <- list(y=y, W=W, x=xseq, f.ctrls=f.ctrls, f.cases=f.cases,
                 f.ctrls.crude=crude$f.ctrls, f.cases.crude=crude$f.cases,
@@ -374,10 +374,10 @@ prop.belowthreshold <- function(densities, w.threshold) {
 #' Cumulative frequency distribution
 #'
 #' @noRd
-cumfreqs <- function(f, xseq, x.stepsize) {
+cumfreqs <- function(f, x.stepsize) {
     ## normalize f
     f <- f / sum(f * x.stepsize)
-    return(data.frame(x=xseq, F=cumsum(f * x.stepsize)))
+    return(cumsum(f * x.stepsize))
 }
 
 #' Means of densities of weight of evidence in cases and controls
