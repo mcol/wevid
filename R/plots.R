@@ -30,14 +30,13 @@
 #'
 #' @examples
 #' data("cleveland") # load example dataset
-#' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities <- Wdensities(cleveland$y, W)
+#' densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 #' plotWdists(densities)
 #'
 #' # Example which requires fitting a mixture distribution
 #' data("fitonly")
-#' W <- with(fitonly, weightsofevidence(posterior.p, prior.p))
-#' densities <- Wdensities(fitonly$y, W, in.spike=W < -2)
+#' densities <- with(fitonly, Wdensities(y, posterior.p, prior.p,
+#'                                       in.spike=posterior.p < 0.1))
 #'
 #' # truncate spike
 #' p <- plotWdists(densities)
@@ -116,8 +115,7 @@ plotWdists <- function(densities, mask=NULL,
 #'
 #' @examples
 #' data("cleveland") # load example dataset
-#' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities <- Wdensities(cleveland$y, W)
+#' densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 #' plotcumfreqs(densities)
 #'
 #' @export
@@ -163,8 +161,7 @@ plotcumfreqs <- function(densities) {
 #'
 #' @examples
 #' data("cleveland") # load example dataset
-#' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities <- Wdensities(cleveland$y, W)
+#' densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 #' plotroc(densities)
 #'
 #' @importFrom pROC roc
@@ -210,8 +207,7 @@ plotroc <- function(densities) {
 #'
 #' @examples
 #' data("cleveland") # load example dataset
-#' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-#' densities <- Wdensities(cleveland$y, W)
+#' densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 #' plotW(densities)
 #' 
 #' @export
