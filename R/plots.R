@@ -148,6 +148,10 @@ plotcumfreqs <- function(densities) {
 
 #' Plot crude and model-based ROC curves
 #'
+#' While the crude ROC curve can be non-concave and is generally not smooth,
+#' the model-based ROC curve is always concave, as the corresponding densities
+#' have been adjusted to be mathematically consistent.
+#'
 #' @param densities Densities object produced by \code{\link{Wdensities}}.
 #'
 #' @return
