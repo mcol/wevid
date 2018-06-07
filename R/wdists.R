@@ -364,6 +364,7 @@ lambda.model <- function(densities) {
 #' 
 #' @export
 prop.belowthreshold <- function(densities, w.threshold) {
+    validate.densities(densities)
     xseq.threshold.idx <- which(densities$x >= w.threshold)[1]
     prop.ctrls <- round(densities$cumfreq.ctrls[xseq.threshold.idx], 3)
     prop.cases <- round(densities$cumfreq.cases[xseq.threshold.idx], 3)
@@ -390,9 +391,26 @@ cumfreqs <- function(f, xseq, x.stepsize) {
 #' @seealso \code{\link{lambda.model}}
 #' @export
 means.densities <- function(densities) {
+    validate.densities(densities)
     means.ctrls <- sum(densities$x * densities$f.ctrls) / sum(densities$f.ctrls)
     means.cases <- sum(densities$x * densities$f.cases) / sum(densities$f.cases)
     return(c(ctrls=-means.ctrls, cases=means.cases))
+}
+
+#' Validate densities object
+#'
+#' Checks that the object has been created by \code{\link{Wdensities}}.
+#'
+#' @param obj An object to be checked.
+#'
+#' @return
+#' Throws an error if the object is not a densities object.
+#'
+#' @noRd
+validate.densities <- function(obj) {
+    if (class(obj) != "Wdensities") {
+        stop("Not a densities object of class 'Wdensities'.")
+    }
 }
 
 #' Validate probability vectors

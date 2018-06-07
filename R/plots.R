@@ -47,7 +47,7 @@
 #' @export
 plotWdists <- function(densities, mask=NULL,
                        distlabels=c("Crude", "Adjusted")) {
-
+    validate.densities(densities)
     dists.data <- data.frame(W=densities$x,
                              Controls=densities$f.ctrls.crude,
                              Cases=densities$f.cases.crude,
@@ -122,6 +122,7 @@ plotWdists <- function(densities, mask=NULL,
 #'
 #' @export
 plotcumfreqs <- function(densities) {
+    validate.densities(densities)
     cumfreqs.ctrls <- data.frame(W=densities$x, F=densities$cumfreq.ctrls,
                                  status="Controls")
     cumfreqs.cases <- data.frame(W=densities$x, F=densities$cumfreq.cases,
@@ -162,6 +163,7 @@ plotcumfreqs <- function(densities) {
 #' @importFrom zoo rollmean
 #' @export
 plotroc <- function(densities) {
+    validate.densities(densities)
     roc.model <- data.frame(x=1 - densities$cumfreq.ctrls,
                             y=1 - densities$cumfreq.cases)
     roc.model$calc <- "Model-based"
@@ -206,6 +208,7 @@ plotroc <- function(densities) {
 #' 
 #' @export
 plotW <- function(densities) {
+    validate.densities(densities)
     densities.logratio <- log(densities$f.cases / densities$f.ctrls)
     wratios <- data.frame(Wdens=densities$x, Wratio=densities.logratio)
     axislimits <- 1.5 * range(densities$W)
