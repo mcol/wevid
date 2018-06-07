@@ -128,13 +128,17 @@ plotcumfreqs <- function(densities) {
     cumfreqs.cases <- data.frame(W=densities$x, F=densities$cumfreq.cases,
                                  status="Cases")
     cumfreqs <- rbind(cumfreqs.ctrls, cumfreqs.cases)
+    thresh <- 1e-5
+    keep <- which(cumfreqs.ctrls$F + cumfreqs.cases$F > thresh &
+                  cumfreqs.ctrls$F + cumfreqs.cases$F < 2 - thresh)
+    xlim <- 1.5 * range(cumfreqs.ctrls$W[keep], cumfreqs.cases$W[keep])
 
     breaks <- seq(0, 1, by=0.1)
     expand <- c(0.005, 0.005)
     p <- ggplot(cumfreqs, aes_(x=quote(tobits(W)), y=~F, colour=~status)) +
         geom_line(size=1.25) +
         scale_color_manual(values=c(Controls='#000000', Cases='#FF0000')) +
-        scale_x_continuous(limits=2 * c(min(W), max(W)), expand=expand) +
+        scale_x_continuous(limits=xlim, expand=expand) +
         scale_y_continuous(limits=c(0, 1), breaks=breaks, expand=expand) +
         theme_grey(base_size=20) +
         xlab("Weight of evidence case/control (bits)") +
