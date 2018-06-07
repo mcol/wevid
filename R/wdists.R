@@ -310,20 +310,37 @@ density.spike.slab <- function(W, in.spike, xseq) {
 
 #' Summary evaluation of predictive performance
 #'
-#' @param x,densities Densities object produced by \code{\link{Wdensities}}.
+#' @param object,x,densities Densities object produced by
+#'        \code{\link{Wdensities}}.
 #' @param ... Further arguments passed to or from other methods. These are
 #'        currently ignored.
 #'
 #' @return
-#' \code{mean} returns a numeric vector listing the mean densities of the weight
-#' of evidence in controls and in cases.
+#' \code{summary} returns a data frame that reports the number of cases and
+#' controls, the test-loglikelihood, the crude and model-based C-statistic
+#' and expected weight of evidence.
 #'
 #' @examples
 #' data("cleveland") # load example dataset
 #' densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
+#'
+#' summary(densities)
 #' mean(densities)
 #' auroc.model(densities)
 #' lambda.model(densities)
+#'
+#' @export
+summary.Wdensities <- function(object, ...) {
+    validate.densities(object)
+    wt <- with(object, wtrue.results("Model", y, posterior.p, prior.p))
+    wt$`Model-based C-statistic` <- round(auroc.model(object), 3)
+    wt$`Model-based Lambda (bits)` <- round(lambda.model(object), 2)
+    return(wt)
+}
+
+#' @return
+#' \code{mean} returns a numeric vector listing the mean densities of the weight
+#' of evidence in controls and in cases.
 #'
 #' @rdname summary.Wdensities
 #' @export
