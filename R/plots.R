@@ -20,14 +20,15 @@
 #' Plot the distribution of the weight of evidence in cases and in controls
 #'
 #' @param densities Densities object produced by \code{\link{Wdensities}}.
-#' @param distlabels Character vector of length 2.
+#' @param distlabels Character vector of length 2 to be used to label the crude
+#'        and the model-based curves (in that order).
 #'
 #' @return
 #' A ggplot object representing the distributions of crude and model-based
 #' weights of evidence in cases and in controls.
 #'
 #' @examples
-#' data("cleveland") # load example dataset
+#' data("cleveland")
 #' densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 #' plotWdists(densities)
 #'
@@ -82,7 +83,7 @@ plotWdists <- function(densities,
 #' smoothed densities of the weights of evidence in cases and in controls.
 #'
 #' @examples
-#' data("cleveland") # load example dataset
+#' data("cleveland")
 #' densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 #' plotcumfreqs(densities)
 #'
@@ -125,7 +126,7 @@ plotcumfreqs <- function(densities) {
 #' A ggplot object representing crude and model-based ROC curves.
 #'
 #' @examples
-#' data("cleveland") # load example dataset
+#' data("cleveland")
 #' densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 #' plotroc(densities)
 #'
@@ -173,10 +174,10 @@ plotroc <- function(densities) {
 #' 1 passing through the origin).
 #'
 #' @examples
-#' data("cleveland") # load example dataset
+#' data("cleveland")
 #' densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 #' plotW(densities)
-#' 
+#'
 #' @export
 plotW <- function(densities) {
     validate.densities(densities)
@@ -198,7 +199,7 @@ plotW <- function(densities) {
 #' @param densities Densities object produced by \code{\link{Wdensities}}.
 #' @param threshold Numeric value.
 #' @param symmetric Logical value indicating whether the interval should be
-#'        symmeetric around zero.
+#'        symmetric around zero.
 #'
 #' @return
 #' The horizontal interval containing values sufficiently away from zero and
