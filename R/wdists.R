@@ -159,6 +159,10 @@ Wdensities <- function(y, posterior.p, prior.p,
     n.cases <- sum(y == 1)
     if (n.ctrls + n.cases != length(y))
         stop("y contains values different from 0 or 1.")
+    if (length(y) != length(posterior.p))
+        stop("y and posterior.p must have the same number of observations.")
+    if (x.stepsize < 0)
+        stop("x.stepsize must be positive.")
 
     W <- weightsofevidence(posterior.p, prior.p)
     xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
