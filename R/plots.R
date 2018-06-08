@@ -44,7 +44,7 @@
 #' @importFrom reshape2 melt
 #' @export
 plotWdists <- function(densities, mask=NULL,
-                       distlabels=c("Crude", "Adjusted")) {
+                       distlabels=c("Crude", "Model-based")) {
     validate.densities(densities)
     dists.data <- data.frame(W=densities$x,
                              Controls=densities$f.ctrls.crude,
@@ -86,7 +86,7 @@ plotWdists <- function(densities, mask=NULL,
     p <- ggplot(dists.long, aes_(x=quote(tobits(W)), y=~value,
                                 linetype=~adjusted, colour=~status)) +
         geom_line(size=1.25, na.rm=TRUE) +
-        scale_linetype_manual(values=c("dotted", "solid")) +
+        scale_linetype_manual(values=c("solid", "dotted")) +
         scale_color_manual(values=c(Controls='#000000', Cases='#FF0000')) +
         scale_x_continuous(limits=xlim) +
         theme_grey(base_size=20) +
