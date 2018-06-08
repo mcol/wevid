@@ -58,6 +58,12 @@
 #' \item The observed case status (coded as 0 for noncases, 1 for cases).
 #' }
 #'
+#' The main function of the package is \code{\link{Wdensities}} which computes
+#' the crude and model-based densities of weight of evidence in cases and
+#' controls. Once these are computed, they can be plotted with
+#' \code{\link{plotWdists}} and \code{\link{plotcumfreqs}}. Summary statistics
+#' can be reported with \code{\link[=summary.Wdensities]{summary}}.
+#'
 #' @author
 #' Paul McKeigue \email{paul.mckeigue@@ed.ac.uk}
 #'
