@@ -83,12 +83,13 @@ plotWdists <- function(densities, mask=NULL,
     }
 
     expand <- c(0.005, 0.005)
+    xlim <- findInterval(densities, 1e-5, symmetric=TRUE)
     p <- ggplot(dists.long, aes_(x=quote(tobits(W)), y=~value,
                                 linetype=~adjusted, colour=~status)) +
         geom_line(size=1.25) +
         scale_linetype_manual(values=c("dotted", "solid")) +
         scale_color_manual(values=c(Controls='#000000', Cases='#FF0000')) +
-        scale_x_continuous(limits=c(min(dists.long$W), max(dists.long$W))) +
+        scale_x_continuous(limits=xlim) +
         theme_grey(base_size=20) +
         xlab("Weight of evidence case/control (bits)") +
         ylab("Probability density") +
@@ -126,10 +127,7 @@ plotcumfreqs <- function(densities) {
     cumfreqs.cases <- data.frame(W=densities$x, F=densities$cumfreq.cases,
                                  status="Cases")
     cumfreqs <- rbind(cumfreqs.ctrls, cumfreqs.cases)
-    thresh <- 1e-5
-    keep <- which(cumfreqs.ctrls$F + cumfreqs.cases$F > thresh &
-                  cumfreqs.ctrls$F + cumfreqs.cases$F < 2 - thresh)
-    xlim <- 1.5 * range(cumfreqs.ctrls$W[keep], cumfreqs.cases$W[keep])
+    xlim <- findInterval(densities, 1e-5, symmetric=FALSE)
 
     breaks <- seq(0, 1, by=0.1)
     expand <- c(0.005, 0.005)
@@ -226,4 +224,25 @@ plotW <- function(densities) {
         xlab("Weight of evidence case/control (bits)") +
         ylab("Log ratio case density to control density")
     return(p)
+}
+
+#' Find the most interesting interval to plot
+#'
+#' @param densities Densities object produced by \code{\link{Wdensities}}.
+#' @param threshold Numeric value.
+#' @param symmetric Logical value indicating whether the interval should be
+#'        symmeetric around zero.
+#'
+#' @return
+#' The horizontal interval containing values sufficiently away from zero and
+#' one for both case and control curves.
+#'
+#' @noRd
+findInterval <- function(densities, threshold, symmetric) {
+    idx <- with(densities, which(cumfreq.ctrls + cumfreq.cases > threshold &
+                                 cumfreq.ctrls + cumfreq.cases < 2 - threshold))
+    xlim <- 1.5 * range(densities$x[idx])
+    if (symmetric)
+        xlim <- c(-1, 1) * max(abs(xlim))
+    return(xlim)
 }
