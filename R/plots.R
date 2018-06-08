@@ -39,8 +39,7 @@
 #'                                       in.spike=posterior.p < 0.1))
 #'
 #' # truncate spike
-#' p <- plotWdists(densities)
-#' p + ggplot2::scale_y_continuous(limits=c(0, 0.5), expand=c(0, 0))
+#' plotWdists(densities) + ggplot2::scale_y_continuous(limits=c(0, 0.5))
 #'
 #' @importFrom reshape2 melt
 #' @export
