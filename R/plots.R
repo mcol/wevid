@@ -20,8 +20,6 @@
 #' Plot the distribution of the weight of evidence in cases and in controls
 #'
 #' @param densities Densities object produced by \code{\link{Wdensities}}.
-#' @param mask If not \code{NULL}, breaks the y axis to show more detail of
-#'        lower end.
 #' @param distlabels Character vector of length 2.
 #'
 #' @return
@@ -43,7 +41,7 @@
 #'
 #' @importFrom reshape2 melt
 #' @export
-plotWdists <- function(densities, mask=NULL,
+plotWdists <- function(densities,
                        distlabels=c("Crude", "Model-based")) {
     validate.densities(densities)
     dists.data <- data.frame(W=densities$x,
@@ -56,31 +54,6 @@ plotWdists <- function(densities, mask=NULL,
     dists.long$adjusted <- ifelse(grepl(".adj", dists.long$status),
                                   distlabels[2], distlabels[1])
     dists.long$status <- gsub(".adj$", "", dists.long$status)
-    if(!is.null(mask)) {
-        max.value <- max(dists.long$value)
-        ceiling.base <- 2
-        base <- dists.long$value <= ceiling.base
-        floor.peak <- floor(max.value - ceiling.base)
-        peak <- dists.long$value > floor.peak
-        dists.long$mask <- NA
-        dists.long$mask[base] <- 1
-        dists.long$mask[peak] <- 0
-        print(table(dists.long$mask, exclude=NULL))
-
-        max.value.base <- max(dists.long$value[base])
-        min.value.peak <- min(dists.long$value[peak])
-        ## rescale peak values to start from 0
-        dists.long$value[peak] <- dists.long$value[peak] - floor.peak
-        step <- 0.5
-        ## breaks and labels must have the same length
-        labels.base <- breaks.base <- c(seq(0, max.value.base, by=step))
-        labels.peak <- c(seq(0, max.value, by=step))
-        breaks.peak <- labels.peak - floor.peak
-        labels <- c(labels.base, labels.peak)
-        breaks <- c(breaks.base, breaks.peak)
-        dists.long <- dists.long[!is.na(dists.long$mask), ]
-    }
-
     expand <- c(0.005, 0.005)
     xlim <- findInterval(densities, 1e-5, symmetric=TRUE)
     p <- ggplot(dists.long, aes_(x=quote(tobits(W)), y=~value,
@@ -89,6 +62,7 @@ plotWdists <- function(densities, mask=NULL,
         scale_linetype_manual(values=c("solid", "dotted")) +
         scale_color_manual(values=c(Controls='#000000', Cases='#FF0000')) +
         scale_x_continuous(limits=xlim) +
+        scale_y_continuous(expand=expand) +
         theme_grey(base_size=20) +
         xlab("Weight of evidence case/control (bits)") +
         ylab("Probability density") +
@@ -96,12 +70,6 @@ plotWdists <- function(densities, mask=NULL,
               legend.justification=c(0, 1), # top-left corner of legend box
               legend.title=element_blank()) +
         theme(aspect.ratio=1)
-
-    if(!is.null(mask)) {
-        p <- p + scale_y_continuous(breaks=breaks, labels=labels, expand=expand)
-    } else {
-        p <- p + scale_y_continuous(expand=expand)
-    }
     return(p)
 }
 
