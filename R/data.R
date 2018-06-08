@@ -1,9 +1,13 @@
 #' Example datasets
 #'
-#' \code{cleveland} is based on cross-validated prediction of coronary disease
-#' in the Cleveland Heart Study (297 observations).
+#' The \pkg{wevid} package comes with the following dataset:
+#' \itemize{
+#' \item \code{cleveland} is based on cross-validated prediction of coronary
+#'       disease in the Cleveland Heart Study (297 observations).
+#' }
 #'
-#' @name datasets
+#' @name wevid.datasets
+#' @docType data
 #' @usage NULL
 #' @format Each dataset consists of a data frame with the following variables:
 #' \itemize{
@@ -12,29 +16,37 @@
 #'   \item y: Case-control status.
 #' }
 #' @source \url{http://www.homepages.ed.ac.uk/pmckeigu/preprints/classify/demoplotw.html}
+#' @keywords datasets
 "cleveland"
 
-#' \code{pima} is based on cross-validated prediction of diabetes
-#' in Pima Native Americans (768 observations).
+#' \itemize{
+#' \item \code{pima} is based on cross-validated prediction of diabetes
+#'       in Pima Native Americans (768 observations).
+#' }
 #'
 #' @usage NULL
-#' @rdname datasets
+#' @rdname wevid.datasets
 "pima"
 
-#' \code{fitonly} is based on cross-validated prediction of colorectal cancer
-#' from fecal immunochemical test (FIT) only in Michigan. As most controls and
-#' some cases have have zero values in the FIT test, to fit densities to the
-#' sampled values of weight of evidence in controls and cases it is necessary
-#' to specify spike-slab mixtures (242 observations).
+#' \itemize{
+#' \item \code{fitonly} is based on cross-validated prediction of colorectal
+#'       cancer from fecal immunochemical test (FIT) only in Michigan (242
+#'       observations). As most controls and some cases have have zero values
+#'       in the FIT test, to fit densities to the sampled values of weight of
+#'       evidence in controls and cases it is necessary to specify spike-slab
+#'       mixtures.
+#' }
 #'
 #' @usage NULL
-#' @rdname datasets
+#' @rdname wevid.datasets
 "fitonly"
 
-#' \code{fitplusmicrobiome} is based on cross-validated prediction of colorectal
-#' cancer from fecal immunochemical test (FIT) plus microbiome profile in
-#' Michigan (242 observations).
+#' \itemize{
+#' \item \code{fitplusmicrobiome} is based on cross-validated prediction of
+#'       colorectal cancer from fecal immunochemical test (FIT) plus microbiome
+#'       profile in Michigan (242 observations).
+#' }
 #'
 #' @usage NULL
-#' @rdname datasets
+#' @rdname wevid.datasets
 "fitplusmicrobiome"
