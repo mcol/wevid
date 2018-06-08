@@ -172,13 +172,15 @@ plotroc <- function(densities) {
     roc.model <- data.frame(x=1 - densities$cumfreq.ctrls,
                             y=1 - densities$cumfreq.cases)
     roc.model$calc <- "Model-based"
-    cat("Model-based AUROC", auroc.model(densities), "\n")
 
     roc.crude <- roc(densities$y, densities$W, direction="<")
+    auroc.crude <- roc.crude$auc
     roc.crude <- data.frame(x=1 - roc.crude$specificities,
                             y=roc.crude$sensitivities)
     roc.crude$calc <- "Crude"
     roc <- rbind(roc.model, roc.crude)
+    cat("Crude AUROC", round(auroc.crude, 4), "\n")
+    cat("Model-based AUROC", round(auroc.model(densities), 4), "\n")
 
     breaks <- seq(0, 1, by=0.1)
     expand <- c(0.005, 0.005)
