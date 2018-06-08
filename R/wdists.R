@@ -108,10 +108,10 @@ wtrue.results <- function(studyname, y, posterior.p, prior.p) {
     auroc <- auc(y, posterior.p, direction="<")
 
     ## weight of evidence in favour of true status
-    loglikrat <- (2 * y - 1) * weightsofevidence(posterior.p, prior.p)
+    loglikrat <- weightsofevidence(posterior.p, prior.p)
     loglikrat.case <- loglikrat[y==1]
     loglikrat.ctrl <- loglikrat[y==0]
-    mean.loglikrat <- mean(c(loglikrat.case, loglikrat.ctrl))
+    mean.loglikrat <- mean(c(mean(loglikrat.case), -mean(loglikrat.ctrl)))
 
     ## test log-likelihood
     loglik <- y * log(posterior.p) + (1 - y) * log(1 - posterior.p)
