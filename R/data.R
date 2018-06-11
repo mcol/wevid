@@ -15,7 +15,7 @@
 #'   \item posterior.p: Posterior probabilities of case status.
 #'   \item y: Case-control status.
 #' }
-#' @source \url{http://www.homepages.ed.ac.uk/pmckeigu/preprints/classify/demoplotw.html}
+#' @source \url{http://www.homepages.ed.ac.uk/pmckeigu/preprints/classify/wevidtutorial.html}
 #' @keywords datasets
 "cleveland"
 
