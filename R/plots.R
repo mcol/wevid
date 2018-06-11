@@ -175,7 +175,7 @@ plotroc <- function(densities) {
 #' densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 #' plotW(densities)
 #'
-#' @export
+#' @keywords internal
 plotW <- function(densities) {
     validate.densities(densities)
     densities.logratio <- log(densities$f.cases / densities$f.ctrls)
