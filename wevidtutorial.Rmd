@@ -1,0 +1,295 @@
+---
+title: "Notes accompanying paper [McKeigue P. Quantifying performance of a diagnostic test as the expected information for discrimination: relation to the _C_-statistic](../cstatistic.pdf). _Statistical Methods for Medical Research_ 2018, in press"
+author: Paul McKeigue
+date: "`r format(Sys.time(), '%-d %B %Y')`"
+output: 
+  html_document:
+    fig.caption: yes
+    css: quote.css
+---
+
+# Introduction 
+
+This tutorial demonstrates how to use the R package `wevid` for quantifying the performance of a diagnostic test or predictor of a binary outcome as results described in the paper [Quantifying performance of a diagnostic test as the expected information for discrimination: relation to the _C_-statistic](http://www.homepages.ed.ac.uk/pmckeigu/preprints/cstatistic.pdf), now in press in _Statistical Methods for Medical Research_.  
+
+## Limitations of the $C$-statistic for quantifying performance of a diagnostic test
+
+- It is not obvious what the $C$-statistic (area under the ROC curve) tells us about how the test will perform for risk stratification: for instance if a test is used to screen for disease and a risk of 5% is set as the threshold for further investigation, we would like to know what proportion of cases and non-cases will test positive.  
+
+- The increment in $C$-statistic obtained by adding extra variables (such as a panel of biomarkers) to the model is difficult to interpret as a measure of increment in predictive performance.  For instance the increment in $C$-statistic will be greater in a case-control study in which covariates such as age have been matched between cases and controls, than in a cohort study in which these covariates differ between cases and controls and have been included in the model, even if the extra variables are independent of the covariates. 
+
+- The small increments in $C$-statistic that can be obtained by adding variables to a model that has a $C$-statistic of 0.9 or above have led to a [mistaken belief that no useful increment in predictive performance can be obtained](https://www.ncbi.nlm.nih.gov/pubmed/24790177)
+ 
+> “Researchers have observed that $\Delta$AUC depends on the performance of the underlying clinical model. For example, good clinical models are harder to improve on, even with markers that have shown strong association”
+
+- The crude ROC curve obtained by comparing the scores of all possible case-control pairs at each value of the score in cases and controls is not necessarily concave downwards. For any ROC curve that is not concave, one can produce a classifier superior to that summarized by such an ROC curve ([Hand, 2009](https://link.springer.com/article/10.1007%2Fs10994-009-5119-5)).  
+
+# Historical note
+[Dorothy Wrinch and Harold Jeffreys (1921)](https://www.tandfonline.com/doi/full/10.1080/14786442108633773) were the first to write Bayes theorem in the odds form, showing that the ratio between likelihoods of hypotheses, later called the Bayes factor, transforms prior odds into posterior odds. This laid the basis for the Bayesian approach to hypothesis testing. 
+
+$$
+\left(\textrm{prior odds } \mathcal{H}_1 \colon \mathcal{H}_2 \right) \times
+\frac{\textrm{likelihood of } \mathcal{H}_1} {\textrm{likelihood of } \mathcal{H}_2} = \left(\textrm{posterior odds } \mathcal{H}_1 \colon \mathcal{H}_2 \right)
+$$
+
+Taking logarithms, we can write this equation in terms of the **weight of evidence** (log Bayes factor).  Weights of evidence contributed by independent observations can be added, just like physical weights.  If we use logarithms to base 2, the weight of evidence can be expressed in bits, which have a more intuitive interpretation than natural log units. 
+
+$$
+\log{\textrm{prior odds } \mathcal{H}_1 \colon \mathcal{H}_2 } + 
+\textrm{weight of evidence } \mathcal{H}_1 \colon \mathcal{H}_2 = \log{\textrm{posterior odds } \mathcal{H}_1 \colon \mathcal{H}_2 }
+$$
+
+The first practical use of the log Bayes factor to quantify the weight of evidence favouring one hypothesis over another was by Turing at Bletchley Park. 
+
+| <img src="./hut8.jpg" width="270"> | <img src="./Turing.jpg" width="270"> | <img src="./jackgood_copeland.jpg" width="200"> |
+|:---:|:---:|:---:|
+| Hut 8, Bletchley Park | Alan Turing | Jack Good |
+
+The _Banburismus_ procedure was based on accumulating weights of evidence for the settings of the right-hand and middle rotors of the Enigma machine.  Good [recounted in 1994](https://projecteuclid.org/download/pdf_1/euclid.ss/1032209661):- 
+
+> One morning I asked Turing “Isn’t this really Bayes’ theorem?” and he said “I suppose so.”  He hadn’t mentioned Bayes previously.  
+
+
+## Sampling distribution of the weight of evidence
+To be able to decide in advance whether Banburismus was likely to be successful, Turing began [investigating the sampling distribution of the weight of evidence](https://www.cs.tufts.edu/~nr/cs257/archive/jack-good/weight-of-evidence.pdf) in 1940 or 1941.  A list of the properties of weights of evidence derived by Turing was given in a now declassified [paper by Good in the NSA Technical Journal](https://www.nsa.gov/news-features/declassified-documents/tech-journals/assets/files/list-of-properties.pdf) 
+
+[Good and Toulmin (1968)](https://doi.org/10.1093/imamat/4.1.94) derived  an   identity
+mapping the characteristic function $\phi_1 \left( t \right)$ of the distribution of the weight of evidence in favour of a hypothesis when it is true to the characteristic function $\phi_0 \left( t \right)$ of the distribution of the weight of evidence in favour of that hypothesis when it is false. Their derivation was as follows:-
+
+Suppose  that  the  predictors  can  take  $J$  distinct  values  with
+probability of the $j$th value given by $p_j$ when the hypothesis is true
+and $q_j$ when the hypothesis is false. We have:-
+
+\begin{align}
+\phi_1  \left(  t   \right)  &=  \sum{  p_j  \exp{   \left(  it  \log{
+\frac{p_j}{q_j}} \right)}} \\
+\phi_1 \left( t + i \right) &= \sum{ p_j \exp{ \left( i \left(t + i
+\right) \log{ \frac{p_j}{q_j}} \right)}} \\
+&= \sum{ p_j \exp{ \left( i t
+    \log{ \frac{p_j}{q_j}} \right) } \exp{ \left(
+-\log{\frac{p_j}{q_j}} \right) }} \\
+&= \sum{ q_j \exp{ \left( i t
+    \log{ \frac{p_j}{q_j}} \right) }} \\
+&= \phi_0 \left( t \right) 
+\end{align}
+
+This identity can be stated in an alternative form as $e^W p_1 \left( W \right) = p_0 \left( W \right)$, where $p_1 \left( W \right)$ and $p_0 \left( W \right)$ are the densities of the weight of evidence $W$ favouring $\mathcal{H}_1$ over $\mathcal{H}_0$ when $\mathcal{H}_1$ is true and when $\mathcal{H}_0$ is true respectively.  This result can be obtained simply by noting that at any value of $W$ the ratio $p_1 \left( W \right) / p_0 \left( W \right)$ is the Bayes factor $e^W$ favouring $\mathcal{H}_1$ over $\mathcal{H}_0$. 
+
+This identity generalizes two results originally obtained by Turing:-
+
+* If the density $p_1 \left( W \right)$ is gaussian with mean $\mu$, the density $p_0 \left( W \right)$ is gaussian with mean $-\mu$ and both densities have variance $2 \mu$.  
+     - This can be shown by substituting $\left( t - i \right)$ for $t$ in the expression $\exp{\left( i \mu t + \frac{1}{2} \sigma^2 t^2 \right)}$ for the characteristic function of a gaussian distribution.  
+
+* The expected Bayes factor in favour of a hypothesis when it is false is 1, as $e^{-W} p_0 \left( W \right)$ must integrate to 1. 
+    - With a good test, the sampling distribution of the Bayes factor in favour of the wrong hypothesis will be right-skewed so that its expectation is 1 even though most of its probability mass is close to zero.  A practical implication is that a good diagnostic test will not often be wrong but when it is wrong it may be wildly wrong, giving strong evidence in favour of the wrong diagnosis.  
+
+If there are many independent predictors of small effect, the weight of evidence will have its asymptotic gaussian distribution and there is a simple relationship of the $C$-statistic to the expected weight of evidence $\Lambda$: 
+
+$$
+C = 1 - \Phi \left(-\sqrt{\Lambda} \right)
+$$ 
+where $\Phi \left( \cdot \right)$ is the standard Gaussian cumulative distribution function. 
+
+![Asymptotic relationship of $C$-statistic to expected weight of evidence $\Lambda$](./clambda.png){width=40%}
+
+The $C$-statistic can be viewed as a mapping of the expected weight of evidence $\Lambda$, which takes values from 0 to infinity, to the interval from 0.5 to 1.  If a biomarker with expected weight of evidence 1 bit is evaluated in a case-control study in which covariates have been matched, the increment in $C$-statistic will be from 0.5 to 0.8.  If the same biomarker is evaluated in a cohort study in which covariates such as age contribute a weight of evidence of 2 bits, the increment in $C$-statistic will be much smaller: from 0.88 to 0.925.  
+
+The statistic $\Lambda$ has various alternative names: the _expected information for discrimination_ between cases and controls; the Kullback-Leibler (KL) divergence from the class-conditional distribution $\mathcal{Q}$ of the predictors under incorrect case-control assignment to their distribution $\mathcal{P}$ under correct assignment; or the relative entropy of $\mathcal{P}$ with respect to $\mathcal{Q}$.  As $\Lambda$ is a KL divergence, it can take only non-negative values.
+
+## Advantages of using expected weight of evidence $\Lambda$ to quantify performance of a diagnostic test
+
+- Contributions of independent variables to predictive performance are additive on the scale of $\Lambda$. 
+
+- The expected weight of evidence has an intuitive interpretation as the typical factor by which prior odds are updated to posterior odds 
+
+- Where there are many independent predictors of small effect, the expectation of the weight of evidence determines its distribution, and this distribution contains all the information required to characterize how the test will behave as a risk stratifier.  
+
+- The calculation of weight of evidence can be extended to interval-censored failure-time data, to which the $C$-statistic is not applicable because it does not condition on the interval lengths. 
+
+## Relation of ROC curve to distributions of weight of evidence 
+[Johnson (2004)](https://www.ncbi.nlm.nih.gov/pubmed/15236429) noted a simple relationship between the distributions of weight of evidence $W$ favouring case over control status in cases and controls and the ROC curve generated from these distributions. If the quantiles of $W$ in controls and cases are $q_0$ and $q_1$ respectively, the sensitivity is $\left(1 - q_1 \right)$ and the specificity is $q_0$ and the ROC is the curve obtained by plotting $\left(1 - q_1 \right)$ as a function of $\left(1 - q_0 \right)$.  The gradient of this function is 
+
+\[ 
+\frac{dq_1}{dq_0} = \frac{d q_1 / d W}{d q_0 / dW} = \frac{p_1 \left( W \right)}{p_0 \left( W \right)}= \exp{ \left( W \right) }
+\]
+
+As $q_0\left( W \right)$ increases with $W$, it follows that the gradient of this model-based ROC curve is a monotonic decreasing function of $\left(1 - q_0 \right)$, unlike the crude ROC curve calculated from ranking the scores of cases and controls.  In other words, the model-based ROC curve is concave downwards.
+
+The problem is to estimate the distributions of the weight of evidence $W$ when the hypothesis is true and when it is false, subject to the constraint that these distributions must be mathematically consistent.  
+
+# The R package `wevid`
+This package provides functions for computing and plotting the distributions of the weight of evidence. A version will eventually be submitted to CRAN.  For now the package can be installed with the following commands :- 
+
+```
+git clone https://github.com/pmckeigue/wevid
+R CMD build wevid
+# replace version number of the tar.gz file with whatever is created by the build command
+R CMD INSTALL wevid_0.2.0.999.tar.gz
+```
+
+`wevid` can use the output of any binary classifier as long as the classifier generates three vectors on test data or test folds formed by cross-validation: the observed values of an outcome `y`, the predictive probabilities `posterior.p`that $y = 1$ (from a model learned on training data), and the prior probabilities `prior.p` that $y = 1$ (usually just the frequency in the training data). 
+
+This package includes three example datasets: `pima, cleveland, fitonly`. Each dataset consists of a data frame with three columns: prior probability `prior.p`, posterior probability `posterior.p`, and binary outcome `y`.  Each of these predictions was generated from the source dataset by fitting a logistic regression model with hierarchical shrinkage prior on the predictors, with predictions generated on test folds by 40-fold cross-validation. The three source datasets from which the predictions were generated are:- 
+
+* [Diabetes in Pima Americans](https://archive.ics.uci.edu/ml/datasets/pima+indians+diabetes)
+
+* [Cleveland study of coronary heart disease diagnosis](https://archive.ics.uci.edu/ml/datasets/heart+Disease)
+
+* [Baxter NT, Ruffin MT, Rogers MAM et al. Microbiota-based model 520
+improves the sensitivity of fecal immunochemical test for detecting colonic lesions. Genome Medicine 2016](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4823848)
+
+# Examples
+## Coronary disease in Cleveland
+
+```{r comment="", pima, echo=TRUE}
+library(wevid)
+library(pander)
+library(ggplot2)
+library(gtable)
+library(grid)
+library(gridExtra)
+
+theme_set(theme_grey(base_size = 18))
+
+data(cleveland)
+cleveland.densities <- with(cleveland,
+                        Wdensities(y, posterior.p, prior.p))
+pander(summary(cleveland.densities), table.style="multiline",
+       split.cells=c(5, 5, 5, 5, 5, 5, 5), split.table="Inf",
+       caption="Prediction of coronary disease in Cleveland")
+```
+
+The crude estimate of the expected information for discrimination $\Lambda$ for the classifier learned on the Cleveland dataset is `r summary(cleveland.densities)[, 4]` bits.  The model-based estimate differs only slightly.  
+
+The distributions in cases and controls of the weight of evidence favouring case over control status are plotted below.  
+
+```{r comment="", cleveland.plotw, echo=TRUE, fig.width=6}
+ plotWdists(cleveland.densities) + theme_grey(base_size = 18) + theme(legend.title=element_blank())
+```
+
+Adjusting these distributions to make them mathematically consistent makes the distribution in controls slightly smoother. 
+
+From the adjusted distributions, we can plot a model-based ROC curve, and compare that with the crude ROC curve obtained from ranking the scores of cases and controls.  The model-based ROC curve is almost identical to the crude one, but is concave. The gradient of this model-based ROC curve is the Bayes factor $e^W$ at the values of sensitivity and specificity given by the coordinates at that point.  
+
+```{r comment="", cleveland.plotroc, echo=TRUE, fig.width=6}
+plotroc(cleveland.densities) + scale_color_manual(values=c("orange", "purple")) 
+ 
+```
+ 
+A cumulative frequency plot of the adjusted distributions is more informative.  
+ 
+```{r comment="", cleveland.cumfreqs, echo=TRUE, fig.width=6}
+plotcumfreqs(cleveland.densities) 
+```
+ 
+To compare how each of these three plots can be used for risk stratification, suppose that we specify that the cutoff for some further diagnostic procedure should be a Bayes factor of 4. In the plots of distributions and cumulative frequencies, this is represented by a vertical blue line at a weight of evidence of 2 bits.  
+
+```{r comment="", cleveland.plotall, echo=TRUE, fig.width=11, fig.height=10}
+cutoff <- 4
+q <- prop.belowthreshold(densities=cleveland.densities, w.threshold=log(cutoff))
+## tangent to ROC curve is equation of the line y = a + b*x
+## passing through x1, y1 with gradient b
+x1 <- q[1]
+y1 <- -(1 - q[2])
+a = y1 - cutoff * x1
+
+p.dists <- plotWdists(cleveland.densities) +
+    geom_vline(xintercept = log2(cutoff), color="blue") +
+    scale_x_continuous(limits=c(-10, 10), expand=c(0,0)) +
+    theme(legend.title=element_blank()) +
+    theme(legend.text=element_text(size=14)) +  
+    theme(legend.position=c(0.8, 1)) + 
+    theme(axis.title=element_text(size=18)) +
+    theme(axis.title.x = element_blank())
+
+p.cumfreqs <- plotcumfreqs(cleveland.densities) +
+    coord_fixed(ratio=1/15) +
+    geom_vline(xintercept=log2(cutoff), color="blue") +
+    scale_x_continuous(limits=c(-10, 10), expand=c(0,0)) +
+    scale_y_continuous(limits=c(0, 1), expand=c(0,0)) +
+    theme(axis.title=element_text(size=18)) +
+    geom_hline(yintercept=q[2], color="green") + 
+    theme(legend.title=element_blank())  
+
+p.roc <- plotroc(cleveland.densities) +
+    scale_color_manual(values=c("orange", "purple")) + 
+    geom_abline(intercept = a, slope = cutoff, color="blue") +
+    geom_hline(yintercept=-y1, color="green") + 
+    coord_fixed(ratio=1) +
+    theme(axis.title=element_text(size=18)) +
+    theme(legend.title=element_blank()) + 
+    theme(legend.position=c(0.5, 0.7)) + 
+    scale_x_continuous(limits=c(0, 1), expand=c(0, 0)) +
+    scale_y_reverse(limits=c(1, 0), expand=c(0, 0)) +
+    xlab("Specificity") +
+    ylab("Sensitivity (reverse scale)")
+
+p1 <- ggplot_gtable(ggplot_build(p.dists))
+p2 <- ggplot_gtable(ggplot_build(p.cumfreqs))
+p3 <- ggplot_gtable(ggplot_build(p.roc))
+
+maxWidth = grid::unit.pmax(p1$widths[2:3], p2$widths[2:3])
+p1$widths[2:3] <- as.list(maxWidth)
+p2$widths[2:3] <- as.list(maxWidth)
+
+maxHeight = grid::unit.pmax(p2$heights[2:3], p3$heights[2:3])
+p2$heights[2:3] <- as.list(maxHeight)
+p3$heights[2:3] <- as.list(maxHeight)
+
+g <- arrangeGrob(p1, p2, p3,
+                 layout_matrix = rbind(c(1, NA),
+                                       c(2, 3)))
+grid.newpage()
+grid.draw(g)
+```
+
+At a Bayes factor of 4, `r round(100 * q[1])`% of controls and `r round(100 * q[2])`% of cases will be excluded as below the risk threshold.  To make the relationship between the cumulative frequency distributions and the ROC curve clearer, the axes of the ROC curve have been reversed.  The Bayes factor is the gradient of the blue line that is the tangent to the model-based ROC curve (purple).  The specificity and sensitivity are the coordinates of the point at which this blue line touches the curve. The quantile (`r round(q[2], 2)`) of the weight of evidence in cases at this point is represented by the green line. As we pass from low to high values of the weight of evidence, the gradient of the reversed ROC curve increases from zero to infinity. 
+
+All three plots encode the same information: but it is easier to read the sensitivity and specificity at a given value of the Bayes factor from the cumulative frequency plot, where the log Bayes factor is the scale of the $x$-axis, than from the ROC curve where the Bayes factor is encoded as the gradient of the curve.  
+
+## Colorectal cancer in Michigan
+
+This dataset has FIT test as the only predictor, with a high proportion of zero values.  The distributions of the weight of evidence in cases and controls are bimodal, with a spike at about -3 bits, corresponding to those with zero values in the FIT test.  To fit distributions to this model we specify a two-component mixture, in which all values of the weight of evidence less than minus 2 natural log units are in a spike component.  
+	
+```{r comment="", fitplus, echo=TRUE}
+data(fitonly)
+W <- with(fitonly, weightsofevidence(posterior.p, prior.p)) 
+in.spike <- W < -2
+fitonly.densities <- with(fitonly,
+                        Wdensities(y, posterior.p, prior.p, in.spike=in.spike))
+pander(summary(fitonly.densities),
+       table.style="multiline",
+       split.cells=c(5, 5, 5, 5, 5, 5, 5), split.table="Inf",
+       caption="Prediction of colorectal cancer from faecal immunochemical test (FIT) alone")
+```
+
+Adjusting the distributions in cases and controls to be consistent does not make much difference to their shapes
+
+```{r comment="", fitonly.dists, echo=TRUE, fig.width=6, fig.height=10}
+p.fitonly <- plotWdists(fitonly.densities)
+
+p1.fitonly <- p.fitonly + theme(axis.title.x = element_blank()) +
+    theme(axis.title=element_text(size=18)) +
+    theme(legend.position=c(0.4, 0.7))
+
+p2.fitonly <- p.fitonly + scale_y_continuous(limits=c(0, 0.5), expand=c(0,0)) +
+    theme(axis.title=element_text(size=18)) +
+    theme(legend.position="none")
+
+g1.fitonly <- ggplot_gtable(ggplot_build(p1.fitonly))
+g2.fitonly <- ggplot_gtable(ggplot_build(p2.fitonly))
+
+maxWidth = grid::unit.pmax(g1.fitonly$widths[2:3], g2.fitonly$widths[2:3])
+g1.fitonly$widths[2:3] <- as.list(maxWidth)
+g2.fitonly$widths[2:3] <- as.list(maxWidth)
+
+grid.arrange(g1.fitonly, g2.fitonly, ncol=1) 
+```
+
+The model-based ROC curve for FIT only looks very different from the crude one 
+
+```{r comment="", fitonly.roc, echo=TRUE, fig.width=6}
+plotroc(fitonly.densities) + scale_color_manual(values=c("orange", "purple")) 
+ 
+```
+
