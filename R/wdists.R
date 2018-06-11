@@ -279,7 +279,7 @@ density.spike.slab <- function(W, in.spike, xseq) {
 #'
 #' @return
 #' \code{summary} returns a data frame that reports the number of cases and
-#' controls, the test-loglikelihood, the crude and model-based C-statistic
+#' controls, the test log-likelihood, the crude and model-based C-statistic
 #' and expected weight of evidence.
 #'
 #' @examples
@@ -305,19 +305,19 @@ summary.Wdensities <- function(object, ...) {
     auroc <- auc(y, posterior.p, direction="<")
 
     ## weight of evidence in favour of true status
-    loglikrat <- weightsofevidence(posterior.p, prior.p)
-    loglikrat.case <- loglikrat[y == 1]
-    loglikrat.ctrl <- loglikrat[y == 0]
-    mean.loglikrat <- mean(c(mean(loglikrat.case), -mean(loglikrat.ctrl)))
+    W <- weightsofevidence(posterior.p, prior.p)
+    W.case <- W[y == 1]
+    W.ctrl <- W[y == 0]
+    mean.W <- mean(c(mean(W.case), -mean(W.ctrl)))
 
     ## test log-likelihood
     loglik <- y * log(posterior.p) + (1 - y) * log(1 - posterior.p)
     results <- data.frame(casectrl=paste(object$n.cases, "/", object$n.ctrls),
                           auroc=round(auroc, 3),
                           auroc.adj=round(auroc.model(object), 3),
-                          loglikrat.all=round(tobits(mean.loglikrat), 2),
+                          W.all=round(tobits(mean.W), 2),
                           lambda.adj=round(lambda.model(object), 2),
-                          test.loglik=round(tobits(sum(loglik)), 2)
+                          test.loglik=round(sum(loglik), 2)
                           )
     names(results) <-
         c("Cases / controls",
@@ -325,7 +325,7 @@ summary.Wdensities <- function(object, ...) {
           "Model-based C-statistic",
           "Crude Lambda (bits)",
           "Model-based Lambda (bits)",
-          "Test log-likelihood (bits)"
+          "Test log-likelihood (natural log units)"
           )
     return(results)
 }

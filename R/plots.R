@@ -60,7 +60,7 @@ plotWdists <- function(densities,
     p <- ggplot(dists.long, aes_(x=quote(tobits(W)), y=~value,
                                 linetype=~adjusted, colour=~status)) +
         geom_line(size=1.25, na.rm=TRUE) +
-        scale_linetype_manual(values=c("solid", "dotted")) +
+        scale_linetype_manual(values=c("dotted", "solid")) +
         scale_color_manual(values=c(Controls='#000000', Cases='#FF0000')) +
         scale_x_continuous(limits=xlim) +
         scale_y_continuous(expand=expand) +
@@ -106,7 +106,7 @@ plotcumfreqs <- function(densities) {
         scale_y_continuous(limits=c(0, 1), breaks=breaks, expand=expand) +
         theme_grey(base_size=20) +
         xlab("Weight of evidence case/control (bits)") +
-        ylab("Cumulative probability") +
+        ylab("Cumulative frequency") +
         theme(legend.position=c(0.99, 0.01),
               legend.justification=c(1, 0), # bottom-right corner of legend box
               legend.title=element_blank()) +
@@ -135,27 +135,27 @@ plotcumfreqs <- function(densities) {
 #' @export
 plotroc <- function(densities) {
     validate.densities(densities)
-    roc.model <- data.frame(x=1 - densities$cumfreq.ctrls,
+    roc.model <- data.frame(x=densities$cumfreq.ctrls,
                             y=1 - densities$cumfreq.cases)
     roc.model$calc <- "Model-based"
 
     roc.crude <- roc(densities$y, densities$W, direction="<")
     auroc.crude <- roc.crude$auc
-    roc.crude <- data.frame(x=1 - roc.crude$specificities,
+    roc.crude <- data.frame(x=roc.crude$specificities,
                             y=roc.crude$sensitivities)
     roc.crude$calc <- "Crude"
     roc <- rbind(roc.model, roc.crude)
-    cat("Crude AUROC", round(auroc.crude, 4), "\n")
-    cat("Model-based AUROC", round(auroc.model(densities), 4), "\n")
+    #cat("Crude AUROC", round(auroc.crude, 4), "\n")
+    #cat("Model-based AUROC", round(auroc.model(densities), 4), "\n")
 
     breaks <- seq(0, 1, by=0.1)
     expand <- c(0.005, 0.005)
     p <- ggplot(roc, aes_(x=~x, y=~y, colour=~calc)) +
         geom_line(size=1.25) + coord_fixed() +
-        scale_x_continuous(limits=c(0, 1), breaks=breaks, expand=expand) +
+        scale_x_reverse(limits=c(1, 0), breaks=rev(breaks), expand=expand) +
         scale_y_continuous(limits=c(0, 1), breaks=breaks, expand=expand) +
         theme_grey(base_size=20) +
-        xlab("1 - Specificity") +
+        xlab("Specificity (reverse scale)") +
         ylab("Sensitivity") +
         theme(legend.position=c(0.99, 0.01),
               legend.justification=c(1, 0), # bottom-right corner of legend box

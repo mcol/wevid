@@ -40,13 +40,3 @@
 #' @usage NULL
 #' @rdname wevid.datasets
 "fitonly"
-
-#' \itemize{
-#' \item \code{fitplusmicrobiome} is based on cross-validated prediction of
-#'       colorectal cancer from fecal immunochemical test (FIT) plus microbiome
-#'       profile in Michigan (242 observations).
-#' }
-#'
-#' @usage NULL
-#' @rdname wevid.datasets
-"fitplusmicrobiome"
