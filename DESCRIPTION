@@ -1,10 +1,8 @@
 Package: wevid
 Type: Package
-Title: Quantifying performance of a binary classifier through weight of evidence
+Title: Quantifying Performance of a Binary Classifier Through Weight of Evidence
 Version: 0.4.0.9000
 Date: 2018-06-12
-Author: Paul McKeigue
-Maintainer: Marco Colombo <m.colombo@ed.ac.uk>
 Authors@R: c(person("Paul", "McKeigue",
                     email="paul.mckeigue@ed.ac.uk", role=c("aut")),
              person("Marco", "Colombo",

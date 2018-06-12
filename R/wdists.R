@@ -24,6 +24,7 @@
 #' @param h Bandwidth size.
 #' @param n Length of vector \var{X}.
 #'
+#' @importFrom stats dnorm
 #' @noRd
 fsmooth <- function(x, X, h, n) {
     ## density at x is weighted average of observed values
@@ -151,6 +152,7 @@ weightsofevidence <- function(posterior.p, prior.p) {
 #' densities <- with(fitonly, Wdensities(y, posterior.p, prior.p,
 #'                                       in.spike=posterior.p < 0.1))
 #'
+#' @importFrom stats optim
 #' @export
 Wdensities <- function(y, posterior.p, prior.p,
                        range.xseq=c(-25, 25), x.stepsize=0.01,
@@ -227,6 +229,7 @@ Wdensities <- function(y, posterior.p, prior.p,
 #' List of crude densities for controls and cases sampled at each point in the
 #' range provided.
 #'
+#' @importFrom stats bw.SJ
 #' @keywords internal
 Wdensities.crude <- function(y, W, xseq, adjust.bw=1) {
     n.ctrls <- sum(y == 0)
@@ -258,6 +261,7 @@ Wdensities.mix <- function(y, W, xseq, in.spike) {
     return(list(f.ctrls=Wdensity.mix.ctrls, f.cases=Wdensity.mix.cases))
 }
 
+#' @importFrom stats density
 #' @noRd
 density.spike.slab <- function(W, in.spike, xseq) {
     density.spike <- density(W[in.spike], bw="SJ", n=length(xseq),
