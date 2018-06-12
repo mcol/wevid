@@ -4,28 +4,32 @@
 \alias{plotWdists}
 \title{Plot the distribution of the weight of evidence in cases and in controls}
 \usage{
-plotWdists(Wdensities.unadj, Wdensities.adj, mask = NULL,
-  distlabels = c("Crude", "Adjusted"))
+plotWdists(densities, distlabels = c("Crude", "Model-based"))
 }
 \arguments{
-\item{Wdensities.unadj}{Unadjusted densities computed by
-\code{\link{Wdensities.unadjusted}}.}
+\item{densities}{Densities object produced by \code{\link{Wdensities}}.}
 
-\item{Wdensities.adj}{Adjusted densities computed by
-\code{\link{Wdensities.fromraw}}.}
-
-\item{mask}{if not null, breaks y axis to show more detail of lower end}
-
-\item{distlabels}{Character vector of length 2}
+\item{distlabels}{Character vector of length 2 to be used to label the crude
+and the model-based curves (in that order).}
+}
+\value{
+A ggplot object representing the distributions of crude and model-based
+weights of evidence in cases and in controls.
 }
 \description{
 Plot the distribution of the weight of evidence in cases and in controls
 }
 \examples{
-data("cleveland") # load example dataset
-W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
-densities.adj <- Wdensities.fromraw(densities.unadj)
-plotWdists(densities.unadj, densities.adj)
+data("cleveland")
+densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
+plotWdists(densities)
+
+# Example which requires fitting a mixture distribution
+data("fitonly")
+densities <- with(fitonly, Wdensities(y, posterior.p, prior.p,
+                                      in.spike=posterior.p < 0.1))
+
+# truncate spike
+plotWdists(densities) + ggplot2::scale_y_continuous(limits=c(0, 0.5))
 
 }

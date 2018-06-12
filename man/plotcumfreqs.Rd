@@ -7,17 +7,18 @@
 plotcumfreqs(densities)
 }
 \arguments{
-\item{densities}{Adjusted densities computed by
-\code{\link{Wdensities.fromraw}}.}
+\item{densities}{Densities object produced by \code{\link{Wdensities}}.}
+}
+\value{
+A ggplot object representing the cumulative frequency distributions of the
+smoothed densities of the weights of evidence in cases and in controls.
 }
 \description{
 Plot the cumulative frequency distributions in cases and in controls
 }
 \examples{
-data("cleveland") # load example dataset
-W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
-densities.adj <- Wdensities.fromraw(densities.unadj)
-plotcumfreqs(densities.adj)
+data("cleveland")
+densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
+plotcumfreqs(densities)
 
 }

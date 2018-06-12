@@ -4,27 +4,22 @@
 \alias{plotroc}
 \title{Plot crude and model-based ROC curves}
 \usage{
-plotroc(densities, y, W)
+plotroc(densities)
 }
 \arguments{
-\item{densities}{Adjusted densities computed by
-\code{\link{Wdensities.fromraw}}.}
-
-\item{y}{Binary outcome label (0 for controls, 1 for cases).}
-
-\item{W}{Weight of evidence (natural logs).}
+\item{densities}{Densities object produced by \code{\link{Wdensities}}.}
 }
 \value{
-ggplot of crude and model-based ROC curves
+A ggplot object representing crude and model-based ROC curves.
 }
 \description{
-Plot crude and model-based ROC curves
+While the crude ROC curve can be non-concave and is generally not smooth,
+the model-based ROC curve is always concave, as the corresponding densities
+have been adjusted to be mathematically consistent.
 }
 \examples{
-data("cleveland") # load example dataset
-W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
-densities.unadj <- Wdensities.unadjusted(cleveland$y, W)
-densities.adj <- Wdensities.fromraw(densities.unadj)
-plotroc(densities.adj, cleveland$y, W)
+data("cleveland")
+densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
+plotroc(densities)
 
 }
