@@ -17,21 +17,6 @@
 ##
 ##=============================================================================
 
-#' Gaussian kernel for density estimation
-#'
-#' @param x Scalar.
-#' @param X Vector.
-#' @param h Bandwidth size.
-#' @param n Length of vector \var{X}.
-#'
-#' @importFrom stats dnorm
-#' @noRd
-fsmooth <- function(x, X, h, n) {
-    ## density at x is weighted average of observed values
-    ## with weights scaling with exp(-t^2)
-    return(sum(dnorm((x - X) / h))/ (n * h))
-}
-
 #' Kullback-Leibler divergence of p from q
 #'
 #' @param p,q Probability distributions.
@@ -229,20 +214,17 @@ Wdensities <- function(y, posterior.p, prior.p,
 #' List of crude densities for controls and cases sampled at each point in the
 #' range provided.
 #'
-#' @importFrom stats bw.SJ
+#' @importFrom stats bw.SJ density
 #' @keywords internal
 Wdensities.crude <- function(y, W, xseq, adjust.bw=1) {
-    n.ctrls <- sum(y == 0)
-    n.cases <- sum(y == 1)
-    fhat.cases.raw <- fhat.ctrls.raw <- numeric(length(xseq))
     W.ctrls <- W[y == 0]
     W.cases <- W[y == 1]
     bw.ctrls <- bw.SJ(W.ctrls) * adjust.bw
     bw.cases <- bw.SJ(W.cases) * adjust.bw
-    for(i in 1:length(xseq)) {
-        fhat.ctrls.raw[i] <- fsmooth(xseq[i], W.ctrls, h=bw.ctrls, n.ctrls)
-        fhat.cases.raw[i] <- fsmooth(xseq[i], W.cases, h=bw.cases, n.cases)
-    }
+    fhat.ctrls.raw <- density(W.ctrls, bw.ctrls, n=length(xseq),
+                              from=min(xseq), to=max(xseq))$y
+    fhat.cases.raw <- density(W.cases, bw.cases, n=length(xseq),
+                              from=min(xseq), to=max(xseq))$y
     return(list(f.ctrls=fhat.ctrls.raw, f.cases=fhat.cases.raw))
 }
 
