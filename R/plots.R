@@ -139,7 +139,7 @@ plotroc <- function(densities) {
                             y=1 - densities$cumfreq.cases)
     roc.model$calc <- "Model-based"
 
-    roc.crude <- roc(densities$y, densities$W, direction="<")
+    roc.crude <- roc(densities$y, densities$posterior.p, direction="<")
     roc.crude <- data.frame(x=roc.crude$specificities,
                             y=roc.crude$sensitivities)
     roc.crude$calc <- "Crude"
