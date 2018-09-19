@@ -68,9 +68,10 @@
 #' Paul McKeigue \email{paul.mckeigue@@ed.ac.uk}
 #'
 #' @references
-#' McKeigue P., Quantifying performance of a diagnostic test as the expected
-#' information for discrimination: relation to the C-statistic.
-#' \emph{Statistical Methods for Medical Research}, 2018, in press.
+#' Paul McKeigue (2018), Quantifying performance of a diagnostic test as the
+#' expected information for discrimination: Relation to the C-statistic.
+#' \emph{Statistical Methods for Medical Research},
+#' https://doi.org/10.1177/0962280218776989.
 #' 
 #' @docType package
 #' @import ggplot2
