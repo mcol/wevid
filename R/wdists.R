@@ -84,7 +84,7 @@ error.integrals <- function(theta, densities, wts) {
 #' The weight of evidence in nats for each observation.
 #'
 #' @examples
-#' data("cleveland") # load example dataset
+#' data(cleveland) # load example dataset
 #' W <- with(cleveland, weightsofevidence(posterior.p, prior.p))
 #'
 #' @export
@@ -130,11 +130,11 @@ weightsofevidence <- function(posterior.p, prior.p) {
 #' summary measures and generate plots.
 #'
 #' @examples
-#' data("cleveland")
+#' data(cleveland)
 #' densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 #'
 #' # Example which requires fitting a mixture distribution
-#' data("fitonly")
+#' data(fitonly)
 #' densities <- with(fitonly, Wdensities(y, posterior.p, prior.p,
 #'                                       in.spike=posterior.p < 0.1))
 #'
@@ -271,7 +271,7 @@ density.spike.slab <- function(W, in.spike, xseq) {
 #' and expected weight of evidence.
 #'
 #' @examples
-#' data("cleveland")
+#' data(cleveland)
 #' densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 #'
 #' summary(densities)
@@ -378,7 +378,7 @@ lambda.model <- function(densities) {
 #' cases with weight of evidence below the given threshold.
 #'
 #' @examples
-#' data("cleveland")
+#' data(cleveland)
 #' densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 #' w.threshold <- log(4) # threshold Bayes factor of 4
 #' prop.belowthreshold(densities, w.threshold)
