@@ -123,6 +123,7 @@ weightsofevidence <- function(posterior.p, prior.p) {
 #'        vector of the same length as \code{y}, with elements set to \code{TRUE}
 #'        if in the spike component, \code{FALSE} otherwise. Typically used
 #'        where high proportion of values of the predictor are zero.
+#' @param debug If \code{TRUE}, the size of the adjustment is reported.
 #'
 #' @return
 #' A densities object that contains the information necessary to compute
@@ -141,7 +142,7 @@ weightsofevidence <- function(posterior.p, prior.p) {
 #' @export
 Wdensities <- function(y, posterior.p, prior.p,
                        range.xseq=c(-25, 25), x.stepsize=0.01,
-                       adjust.bw=1, in.spike=NULL) {
+                       adjust.bw=1, in.spike=NULL, debug=FALSE) {
     n.ctrls <- sum(y == 0)
     n.cases <- sum(y == 1)
     if (n.ctrls + n.cases != length(y))
@@ -170,8 +171,6 @@ Wdensities <- function(y, posterior.p, prior.p,
                           densities=crude, wts=wts,
                           lower=-0.5, upper=0.5)
     theta <- optim.result$par
-    cat("Optimal value of reweighting parameter theta:", theta, "\n")
-
     wdens <- reweight.densities(theta, crude$f.ctrls, crude$f.cases,
                                 n.ctrls, n.cases,
                                 xseq, wts)
@@ -180,8 +179,11 @@ Wdensities <- function(y, posterior.p, prior.p,
     z <- 0.5 * (sum(wdens$f.ctrls) + sum(wdens$f.cases)) * x.stepsize
     f.cases <- wdens$f.cases / z
     f.ctrls <- wdens$f.ctrls / z
-    cat("f.cases normalizes to", sum(f.cases * x.stepsize), "\n")
-    cat("f.ctrls normalizes to", sum(f.ctrls * x.stepsize), "\n")
+    if (debug) {
+        cat("Optimal value of reweighting parameter theta:", theta, "\n")
+        cat("f.cases normalizes to", sum(f.cases * x.stepsize), "\n")
+        cat("f.ctrls normalizes to", sum(f.ctrls * x.stepsize), "\n")
+    }
 
     ## cumulative frequencies for the adjusted distributions
     cumfreq.ctrls <- cumfreqs(f.ctrls, x.stepsize)
