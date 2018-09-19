@@ -4,7 +4,8 @@ Title: Quantifying Performance of a Binary Classifier Through Weight of Evidence
 Version: 0.4.2.9000
 Date: 2018-06-15
 Authors@R: c(person("Paul", "McKeigue",
-                    email="paul.mckeigue@ed.ac.uk", role=c("aut")),
+                    email="paul.mckeigue@ed.ac.uk", role=c("aut"),
+                    comment=c(ORCID="0000-0002-5217-1034")),
              person("Marco", "Colombo",
                     email="m.colombo@ed.ac.uk", role=c("ctb", "cre"),
                     comment=c(ORCID="0000-0001-6672-0623")))
