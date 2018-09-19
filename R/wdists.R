@@ -280,30 +280,18 @@ density.spike.slab <- function(W, in.spike, xseq) {
 #' lambda.model(densities)
 #'
 #' @name summary-densities
-#' @importFrom pROC auc
 #' @export
 summary.Wdensities <- function(object, ...) {
     validate.densities(object)
     y <- object$y
     posterior.p <- object$posterior.p
-    prior.p <- object$prior.p
-
-    ## force direction of computation of the C-statistic so that predicted
-    ## values for controls are lower or equal than values for cases
-    auroc <- auc(y, posterior.p, direction="<")
-
-    ## weight of evidence in favour of true status
-    W <- weightsofevidence(posterior.p, prior.p)
-    W.case <- W[y == 1]
-    W.ctrl <- W[y == 0]
-    mean.W <- mean(c(mean(W.case), -mean(W.ctrl)))
 
     ## test log-likelihood
     loglik <- y * log(posterior.p) + (1 - y) * log(1 - posterior.p)
     results <- data.frame(casectrl=paste(object$n.cases, "/", object$n.ctrls),
-                          auroc=round(auroc, 3),
+                          auroc=round(auroc.crude(object), 3),
                           auroc.adj=round(auroc.model(object), 3),
-                          W.all=round(tobits(mean.W), 2),
+                          lambda=round(lambda.crude(object), 2),
                           lambda.adj=round(lambda.model(object), 2),
                           test.loglik=round(sum(loglik), 2)
                           )
@@ -318,11 +306,11 @@ summary.Wdensities <- function(object, ...) {
     return(results)
 }
 
+#' @rdname summary-densities
 #' @return
 #' \code{mean} returns a numeric vector listing the mean densities of the weight
 #' of evidence in controls and in cases.
 #'
-#' @rdname summary-densities
 #' @export
 mean.Wdensities <- function(x, ...) {
     validate.densities((densities <- x))
@@ -331,11 +319,23 @@ mean.Wdensities <- function(x, ...) {
     return(c(ctrls=-means.ctrls, cases=means.cases))
 }
 
-#' @return
-#' \code{auroc.model} returns the area under the ROC curve according to the
-#' model-based densities of weight of evidence.
-#'
 #' @rdname summary-densities
+#' @importFrom pROC auc
+#' @export
+auroc.crude <- function(densities) {
+
+    ## force direction of computation of the C-statistic so that predicted
+    ## values for controls are lower or equal than values for cases
+    auroc <- as.numeric(with(densities, auc(y, posterior.p, direction="<")))
+    return(auroc)
+}
+
+#' @rdname summary-densities
+#' @return
+#' \code{auroc.crude} and \code{auroc.model} return the area under the ROC curve
+#' according to the crude and the model-based densities of weight of evidence,
+#' respectively.
+#'
 #' @importFrom zoo rollmean
 #' @export
 auroc.model <- function(densities) {
@@ -345,11 +345,22 @@ auroc.model <- function(densities) {
     return(auroc.model)
 }
 
-#' @return
-#' \code{lambda.model} returns the expected weight of evidence (expected
-#' information for discrimination) in bits from the model-based densities.
-#'
 #' @rdname summary-densities
+#' @export
+lambda.crude <- function(densities) {
+    W <- with(densities, weightsofevidence(posterior.p, prior.p))
+    W.case <- W[densities$y == 1]
+    W.ctrl <- W[densities$y == 0]
+    lambda <- tobits(mean(c(mean(W.case), -mean(W.ctrl))))
+    return(lambda)
+}
+
+#' @rdname summary-densities
+#' @return
+#' \code{lambda.crude} and \code{lambda.model} return the expected weight of
+#' evidence (expected information for discrimination) in bits from the crude
+#' and the model-based densities, respectively.
+#'
 #' @export
 lambda.model <- function(densities) {
     wts.ctrlscases <- with(densities, c(n.ctrls, n.cases) / (n.ctrls + n.cases))
