@@ -467,7 +467,7 @@ validate.probabilities <- function(posterior, prior) {
 #' @param posterior.p Vector of posterior probabilities.
 #' 
 #' @return
-#' \code(recalibrate.p) returns recalibrated posterior probabilities.
+#' Recalibrated posterior probabilities.
 #'
 #' @export
 recalibrate.p <- function(y, posterior.p) {
