@@ -463,13 +463,10 @@ validate.probabilities <- function(posterior, prior) {
 #' and returns the predictive probabilities from this model.
 #'
 #' @param y Binary outcome label (0 for controls, 1 for cases).
-#' 
 #' @param posterior.p Vector of posterior probabilities.
 #' 
 #' @return
 #' Recalibrated posterior probabilities.
-#'
-#' @export
 recalibrate.p <- function(y, posterior.p) {
     x <- log(posterior.p / (1 - posterior.p))
     glm.model <- glm(y ~ x, family="binomial")
