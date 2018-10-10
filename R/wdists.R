@@ -113,7 +113,7 @@ weightsofevidence <- function(posterior.p, prior.p) {
 #' @param range.xseq Range of points where the curves should be sampled.
 #' @param x.stepsize Distance between each point.
 #' @param adjust.bw Bandwidth adjustment for the Gaussian kernel density
-#'        estimator. By default it's set to 1 (no adjustment), setting it to
+#'        estimator. By default it is set to 1 (no adjustment), setting it to
 #'        a value smaller/larger than 1 reduces/increases the smoothing of
 #'        the kernel. This argument is ignored if \code{in.spike} is not
 #'        \code{NULL}.
@@ -123,6 +123,9 @@ weightsofevidence <- function(posterior.p, prior.p) {
 #'        vector of the same length as \code{y}, with elements set to \code{TRUE}
 #'        if in the spike component, \code{FALSE} otherwise. Typically used
 #'        where high proportion of values of the predictor are zero.
+#' @param recalibrate \code{TRUE} (the default) the weights of evidence will be
+#' calculated after the posterior probabilities have been recalibrated against y 
+#' using a logistic regression model. 
 #' @param debug If \code{TRUE}, the size of the adjustment is reported.
 #'
 #' @return
@@ -142,7 +145,7 @@ weightsofevidence <- function(posterior.p, prior.p) {
 #' @export
 Wdensities <- function(y, posterior.p, prior.p,
                        range.xseq=c(-25, 25), x.stepsize=0.01,
-                       adjust.bw=1, in.spike=NULL, debug=FALSE) {
+                       adjust.bw=1, in.spike=NULL, recalibrate=TRUE, debug=FALSE) {
     n.ctrls <- sum(y == 0)
     n.cases <- sum(y == 1)
     if (n.ctrls + n.cases != length(y))
@@ -152,7 +155,14 @@ Wdensities <- function(y, posterior.p, prior.p,
     if (x.stepsize < 0)
         stop("x.stepsize must be positive.")
 
-    W <- weightsofevidence(posterior.p, prior.p)
+    posterior.p.recalib <- recalibrate.p(y, posterior.p)
+    if(recalibrate) {# default is to use the recalibrated posterior
+        posterior.p.used <- posterior.p.recalib
+    } else {
+        posterior.p.used <- posterior.p
+    }
+        
+    W <- weightsofevidence(posterior.p.used, prior.p)
     xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
     if (is.null(in.spike)) {
         crude <- Wdensities.crude(y, W, xseq, adjust.bw)
@@ -189,7 +199,8 @@ Wdensities <- function(y, posterior.p, prior.p,
     cumfreq.ctrls <- cumfreqs(f.ctrls, x.stepsize)
     cumfreq.cases <- cumfreqs(f.cases, x.stepsize)
 
-    obj <- list(y=y, posterior.p=posterior.p, prior.p=prior.p,
+    obj <- list(y=y, posterior.p=posterior.p, posterior.p.recalib=posterior.p.recalib,
+                prior.p=prior.p,
                 W=W, x=xseq, f.ctrls=f.ctrls, f.cases=f.cases,
                 f.ctrls.crude=crude$f.ctrls, f.cases.crude=crude$f.cases,
                 cumfreq.ctrls=cumfreq.ctrls, cumfreq.cases=cumfreq.cases,
@@ -288,20 +299,28 @@ summary.Wdensities <- function(object, ...) {
 
     ## test log-likelihood
     loglik <- y * log(posterior.p) + (1 - y) * log(1 - posterior.p)
+
+    posterior.p.recalib <- object$posterior.p.recalib
+    loglik.recalib <-
+            y * log(posterior.p.recalib) + (1 - y) * log(1 - posterior.p.recalib)
+
     results <- data.frame(casectrl=paste(object$n.cases, "/", object$n.ctrls),
                           auroc=round(auroc.crude(object), 3),
                           auroc.adj=round(auroc.model(object), 3),
                           lambda=round(lambda.crude(object), 2),
                           lambda.adj=round(lambda.model(object), 2),
-                          test.loglik=round(sum(loglik), 2)
+                          test.loglik=round(sum(loglik), 2),
+                          test.loglik.recalib=round(sum(loglik.recalib), 2)
                           )
+    Lambda.char <- intToUtf8(923)
     names(results) <-
         c("Cases / controls",
           "Crude C-statistic",
           "Model-based C-statistic",
-          "Crude Lambda (bits)",
-          "Model-based Lambda (bits)",
-          "Test log-likelihood (natural log units)"
+          paste("Crude", Lambda.char, "(bits)"),
+          paste("Model-based", Lambda.char, "(bits)"),
+          "Test log-likelihood (nats)",
+           "log-likelihood after recalibration (nats)" 
           )
     return(results)
 }
@@ -436,4 +455,24 @@ validate.probabilities <- function(posterior, prior) {
         stop("NAs not allowed in the vectors of probabilities.")
     if (any(posterior < 0 | posterior > 1 | prior < 0 | prior > 1))
         stop("Vector does not contain probabilities.")
+}
+
+#' Recalibrate posterior probabilities
+#'
+#' Transforms posterior probabilities to logits, fits a logistic regression model
+#' and returns the predictive probabilities from this model.
+#'
+#' @param y Binary outcome label (0 for controls, 1 for cases).
+#' 
+#' @param posterior.p Vector of posterior probabilities.
+#' 
+#' @return
+#' \code(recalibrate.p) returns recalibrated posterior probabilities.
+#'
+#' @export
+recalibrate.p <- function(y, posterior.p) {
+    x <- log(posterior.p / (1 - posterior.p))
+    glm.model <- glm(y ~ x, family="binomial")
+    newp <- predict(object=glm.model, type="response")
+    return(newp)
 }
