@@ -279,7 +279,7 @@ density.spike.slab <- function(W, in.spike, xseq) {
 #' @return
 #' \code{summary} returns a data frame that reports the number of cases and
 #' controls, the test log-likelihood, the crude and model-based C-statistic
-#' and expected weight of evidence Λ.
+#' and expected weight of evidence Lambda.
 #'
 #' @examples
 #' data(cleveland)
@@ -467,6 +467,7 @@ validate.probabilities <- function(posterior, prior) {
 #' 
 #' @return
 #' Recalibrated posterior probabilities.
+#' @importFrom stats glm predict
 recalibrate.p <- function(y, posterior.p) {
     x <- log(posterior.p / (1 - posterior.p))
     glm.model <- glm(y ~ x, family="binomial")
