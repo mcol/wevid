@@ -20,12 +20,12 @@ weights of evidence in cases and in controls.
 Plot the distribution of the weight of evidence in cases and in controls
 }
 \examples{
-data("cleveland")
+data(cleveland)
 densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 plotWdists(densities)
 
 # Example which requires fitting a mixture distribution
-data("fitonly")
+data(fitonly)
 densities <- with(fitonly, Wdensities(y, posterior.p, prior.p,
                                       in.spike=posterior.p < 0.1))
 

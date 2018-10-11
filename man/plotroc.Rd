@@ -18,7 +18,7 @@ the model-based ROC curve is always concave, as the corresponding densities
 have been adjusted to be mathematically consistent.
 }
 \examples{
-data("cleveland")
+data(cleveland)
 densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 plotroc(densities)
 

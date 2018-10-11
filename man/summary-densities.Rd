@@ -4,7 +4,9 @@
 \alias{summary-densities}
 \alias{summary.Wdensities}
 \alias{mean.Wdensities}
+\alias{auroc.crude}
 \alias{auroc.model}
+\alias{lambda.crude}
 \alias{lambda.model}
 \title{Summary evaluation of predictive performance}
 \usage{
@@ -12,7 +14,11 @@
 
 \method{mean}{Wdensities}(x, ...)
 
+auroc.crude(densities)
+
 auroc.model(densities)
+
+lambda.crude(densities)
 
 lambda.model(densities)
 }
@@ -26,22 +32,24 @@ currently ignored.}
 \value{
 \code{summary} returns a data frame that reports the number of cases and
 controls, the test log-likelihood, the crude and model-based C-statistic
-and expected weight of evidence.
+and expected weight of evidence Λ.
 
 \code{mean} returns a numeric vector listing the mean densities of the weight
 of evidence in controls and in cases.
 
-\code{auroc.model} returns the area under the ROC curve according to the
-model-based densities of weight of evidence.
+\code{auroc.crude} and \code{auroc.model} return the area under the ROC curve
+according to the crude and the model-based densities of weight of evidence,
+respectively.
 
-\code{lambda.model} returns the expected weight of evidence (expected
-information for discrimination) in bits from the model-based densities.
+\code{lambda.crude} and \code{lambda.model} return the expected weight of
+evidence (expected information for discrimination) in bits from the crude
+and the model-based densities, respectively.
 }
 \description{
 Summary evaluation of predictive performance
 }
 \examples{
-data("cleveland")
+data(cleveland)
 densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 
 summary(densities)

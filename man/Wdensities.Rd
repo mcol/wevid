@@ -5,7 +5,8 @@
 \title{Compute densities of weights of evidence in cases and controls}
 \usage{
 Wdensities(y, posterior.p, prior.p, range.xseq = c(-25, 25),
-  x.stepsize = 0.01, adjust.bw = 1, in.spike = NULL)
+  x.stepsize = 0.01, adjust.bw = 1, in.spike = NULL,
+  recalibrate = TRUE, debug = FALSE)
 }
 \arguments{
 \item{y}{Binary outcome label (0 for controls, 1 for cases).}
@@ -20,7 +21,7 @@ to predict on test data.}
 \item{x.stepsize}{Distance between each point.}
 
 \item{adjust.bw}{Bandwidth adjustment for the Gaussian kernel density
-estimator. By default it's set to 1 (no adjustment), setting it to
+estimator. By default it is set to 1 (no adjustment), setting it to
 a value smaller/larger than 1 reduces/increases the smoothing of
 the kernel. This argument is ignored if \code{in.spike} is not
 \code{NULL}.}
@@ -31,6 +32,12 @@ mixture distribution should be assumed, the this must be a logical
 vector of the same length as \code{y}, with elements set to \code{TRUE}
 if in the spike component, \code{FALSE} otherwise. Typically used
 where high proportion of values of the predictor are zero.}
+
+\item{recalibrate}{If \code{TRUE} (the default) the weights of evidence are
+calculated after the posterior probabilities have been recalibrated
+against \code{y} using a logistic regression model.}
+
+\item{debug}{If \code{TRUE}, the size of the adjustment is reported.}
 }
 \value{
 A densities object that contains the information necessary to compute
@@ -48,11 +55,11 @@ indicated through the \code{in.spike} argument. In the general case, it's
 fine to leave it set to \code{NULL}.
 }
 \examples{
-data("cleveland")
+data(cleveland)
 densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 
 # Example which requires fitting a mixture distribution
-data("fitonly")
+data(fitonly)
 densities <- with(fitonly, Wdensities(y, posterior.p, prior.p,
                                       in.spike=posterior.p < 0.1))
 

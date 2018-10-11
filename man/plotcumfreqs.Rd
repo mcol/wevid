@@ -17,7 +17,7 @@ smoothed densities of the weights of evidence in cases and in controls.
 Plot the cumulative frequency distributions in cases and in controls
 }
 \examples{
-data("cleveland")
+data(cleveland)
 densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 plotcumfreqs(densities)
 

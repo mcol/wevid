@@ -17,6 +17,8 @@
 \url{http://www.homepages.ed.ac.uk/pmckeigu/preprints/classify/wevidtutorial.html}
 }
 \description{
+Example datasets
+
 The \pkg{wevid} package comes with the following dataset:
 \itemize{
 \item \code{cleveland} is based on cross-validated prediction of coronary
