@@ -1,11 +1,5 @@
 #' Example datasets
 #'
-#' The \pkg{wevid} package comes with the following dataset:
-#' \itemize{
-#' \item \code{cleveland} is based on cross-validated prediction of coronary
-#'       disease in the Cleveland Heart Study (297 observations).
-#' }
-#'
 #' @name wevid.datasets
 #' @docType data
 #' @usage NULL
@@ -17,6 +11,15 @@
 #' }
 #' @source \url{http://www.homepages.ed.ac.uk/pmckeigu/preprints/classify/wevidtutorial.html}
 #' @keywords datasets
+NULL
+
+#' The \pkg{wevid} package comes with the following dataset:
+#' \itemize{
+#' \item \code{cleveland} is based on cross-validated prediction of coronary
+#'       disease in the Cleveland Heart Study (297 observations).
+#' }
+#' @usage NULL
+#' @rdname wevid.datasets
 "cleveland"
 
 #' \itemize{
