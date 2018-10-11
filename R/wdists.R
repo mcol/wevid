@@ -123,9 +123,9 @@ weightsofevidence <- function(posterior.p, prior.p) {
 #'        vector of the same length as \code{y}, with elements set to \code{TRUE}
 #'        if in the spike component, \code{FALSE} otherwise. Typically used
 #'        where high proportion of values of the predictor are zero.
-#' @param recalibrate \code{TRUE} (the default) the weights of evidence will be
-#' calculated after the posterior probabilities have been recalibrated against y 
-#' using a logistic regression model. 
+#' @param recalibrate If \code{TRUE} (the default) the weights of evidence are
+#'        calculated after the posterior probabilities have been recalibrated
+#'        against \code{y} using a logistic regression model.
 #' @param debug If \code{TRUE}, the size of the adjustment is reported.
 #'
 #' @return
@@ -161,7 +161,7 @@ Wdensities <- function(y, posterior.p, prior.p,
     } else {
         posterior.p.used <- posterior.p
     }
-        
+
     W <- weightsofevidence(posterior.p.used, prior.p)
     xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
     if (is.null(in.spike)) {
@@ -279,7 +279,7 @@ density.spike.slab <- function(W, in.spike, xseq) {
 #' @return
 #' \code{summary} returns a data frame that reports the number of cases and
 #' controls, the test log-likelihood, the crude and model-based C-statistic
-#' and expected weight of evidence.
+#' and expected weight of evidence Λ.
 #'
 #' @examples
 #' data(cleveland)
@@ -320,7 +320,7 @@ summary.Wdensities <- function(object, ...) {
           paste("Crude", Lambda.char, "(bits)"),
           paste("Model-based", Lambda.char, "(bits)"),
           "Test log-likelihood (nats)",
-           "log-likelihood after recalibration (nats)" 
+          "log-likelihood after recalibration (nats)"
           )
     return(results)
 }
