@@ -26,13 +26,13 @@ lambda.model(densities)
 \item{object, x, densities}{Densities object produced by
 \code{\link{Wdensities}}.}
 
-\item{...}{Further arguments passed to or from other methods. These are
+\item{\dots}{Further arguments passed to or from other methods. These are
 currently ignored.}
 }
 \value{
 \code{summary} returns a data frame that reports the number of cases and
 controls, the test log-likelihood, the crude and model-based C-statistic
-and expected weight of evidence Λ.
+and expected weight of evidence Lambda.
 
 \code{mean} returns a numeric vector listing the mean densities of the weight
 of evidence in controls and in cases.
