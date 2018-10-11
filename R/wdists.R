@@ -273,7 +273,7 @@ density.spike.slab <- function(W, in.spike, xseq) {
 #'
 #' @param object,x,densities Densities object produced by
 #'        \code{\link{Wdensities}}.
-#' @param ... Further arguments passed to or from other methods. These are
+#' @param \dots Further arguments passed to or from other methods. These are
 #'        currently ignored.
 #'
 #' @return
