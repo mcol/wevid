@@ -1,0 +1,239 @@
+---
+title: "Evaluating performance of a diagnostic test as the expected weight of evidence"
+author: ["<span class=\"presenter\">Paul McKeigue</span> <div> <span class=\"affiliations\"> <img class=\"img-valign\" src=\"usherlogo.jpg\" style=\"width:300px; height:250px\" alt=\"usher logo\" /> Usher Institute of Population Health Sciences and Informatics, University of Edinburgh <img class=\"img-valign\" src=\"uoelogo.jpg\" style=\"width:250px; height:250px\" alt=\"\" /> </span> </div>"]
+output: 
+  drposter::drposter_poster:
+    self_contained: false
+    css: custom.css
+# header-includes: 
+#   \DeclareUnicodeCharacter{39B}{$\Lambda$}
+---
+```{r setup, echo=FALSE, messages=FALSE, cache=FALSE}
+library(drposter)
+library(wevid)
+library('ggplot2')
+library('knitr')
+knitr::opts_chunk$set(echo = FALSE)  # Hide code by default. Can override chunk-by-chunk
+options("fig.num"=0)
+library(magick)
+library(grid)
+library(gridExtra)
+theme_set(theme_grey(base_size=10))
+```
+  
+# {.col-2 style="grid-row: span 2;"}
+## Introduction 
+The paper **Quantifying performance of a diagnostic test as the expected information for discrimination: relation to the _C_-statistic**, published in _Statistical Methods for Medical Research_ (2018), has attracted wide interest.  This poster explains the ideas. 
+![](./presscoverage.png){width=100%}   
+
+## Evaluating diagnostic tests  
+### Why we need better methods 
+* The advent of precision medicine presents new challenges
+    - diagnostic tests may be based on combining many predictors.
+    - Researchers, industry and regulatory agencies need to be able to evaluate how much extra information is gained by adding a new diagnostic test or predictor on top of existing ones.  
+* Current methods for evaluating diagnostic tests are based on the Receiver Operating Characteristic (ROC) curve developed to quantify the accuracy of detecting enemy submarines.   
+     - The ROC curve is plotted and performance is summarized by the $C$-statistic (area under the curve).
+
+### Limitations of the $C$-statistic
+* Does not tell us how the test will perform for risk stratification: for instance the proportions of true positives and false positives at a given risk threshold.  
+* The increment in $C$-statistic obtained by adding a new predictor to the model is difficult to interpret as a measure of gain in predictive performance. 
+    - increment depends on covariates: cannot compare results in different settings  
+    - reliance on increment in $C$-statistic has led to mistaken belief that no useful improvement in prediction can be obtained if the existing model has $C$-statistic of 0.9 or above:  
+    - _“Researchers have observed that $\Delta$AUC depends on the performance of the underlying clinical model. For example, good clinical models are harder to improve on, even with markers that have shown strong association”_
+
+## Historical note  
+```{r bayesians, echo=FALSE, results="hide", message=FALSE, cache=FALSE, out.width=10}
+img1 <-  rasterGrob(as.raster(image_read("./px800-dorothy-maud-wrinch.jpg"))[50:900, ], interpolate = FALSE)
+img2 <-  rasterGrob(as.raster(image_read("./hut8.jpg")), interpolate = FALSE)
+img3 <-  rasterGrob(as.raster(image_read("./Turing.jpg")), interpolate = FALSE)
+img4 <-  rasterGrob(as.raster(image_read("./jackgood_copeland.jpg")), interpolate = FALSE)
+cap1 <- textGrob("Dorothy Wrinch")
+cap2 <- textGrob("Hut 8, Bletchley Park")
+cap3 <- textGrob("Alan Turing")
+cap4 <- textGrob("Jack Good")
+devsize <- dev.size(units="px")
+bayesians <- arrangeGrob(img1, img2, img3, img4,
+                         cap1, cap2, cap3, cap4,
+			 nrow = 2, ncol=4,
+			 heights = unit(c(4.5, 0.5), c("cm")))
+grid.draw(bayesians)
+```
+**Dorothy Wrinch** and **Harold Jeffreys** (1921) were the first to write Bayes theorem in the odds form, showing that the ratio between likelihoods of hypotheses, later called the Bayes factor, transforms prior odds into posterior odds.  This laid the basis for the Bayesian approach to hypothesis testing. 
+
+$$ \left(\textrm{prior odds } \mathcal{H}_1 \colon \mathcal{H}_2 \right) \times
+\frac{\textrm{likelihood of } \mathcal{H}_1} {\textrm{likelihood of } \mathcal{H}_2} = \left(\textrm{posterior odds } \mathcal{H}_1 \colon \mathcal{H}_2 \right) $$ 
+
+Taking logarithms, we can write this equation in terms of the **weight of evidence** (log Bayes factor).  Weights of evidence contributed by independent observations can be added, just like physical weights.  If we use logarithms to base 2, the weight of evidence can be expressed in bits, which have a more intuitive interpretation than natural log units. 
+
+$$
+\log{\textrm{prior odds } \mathcal{H}_1 \colon \mathcal{H}_2 } + 
+\textrm{weight of evidence } \mathcal{H}_1 \colon \mathcal{H}_2 = \log{\textrm{posterior odds } \mathcal{H}_1 \colon \mathcal{H}_2 }
+$$
+
+The first practical use of the log Bayes factor to quantify the weight of evidence favouring one hypothesis over another was by **Alan Turing** at Bletchley Park.  The _Banburismus_ procedure was based on accumulating weights of evidence for the settings of the right-hand and middle rotors of the Enigma machine.  **Jack Good**, who was Turing's assistant at Bletchley Park, recounted in 1994: "One morning I asked Turing “Isn’t this really Bayes’ theorem?” and he said “I suppose so.”  He hadn’t mentioned Bayes previously."  
+
+## Statistical properties of the weight of evidence
+### Turing's results
+To be able to predict whether Banburismus would be successful, Turing in 1940 began investigating the sampling distribution of the weight of evidence $W$. He discovered two key results:    
+1. If the density $p \left( W \right)$ of the weight of evidence $W$ favouring hypothesis $\mathcal{H}_1$ over $\mathcal{H}_0$ is Gaussian with mean $\Lambda$ when $\mathcal{H}_1$ is true, the density $q \left( W \right)$ when  $\mathcal{H}_0$ is true is Gaussian with mean $-\Lambda$, and both densities have variance $2 \Lambda$.  
+2. The expected Bayes factor in favour of a hypothesis when it is false is 1. A corollary is that a good diagnostic test will not often be wrong but when it is wrong it will often be wildly wrong. 
+
+### More general result
+Good and Toulmin (1968) extended Turing's results by showing that even when the densities  $p \left( W \right)$ and  $q \left( W \right)$ are not Gaussian, there is a mapping between them given by the identity
+
+\begin{align}
+\phi_{\textrm{false}} \left( t \right) &= \phi_{\textrm{true}} \left( t + i \right) 
+\end{align}
+where $\phi_{\textrm{true}} \left( t \right)$ and $\phi_{\textrm{\false}} \left( t \right)$ are respectively the characteristic functions of the densities $p \left( W \right)$, $q \left( W \right)$.  
+This identity can be stated in an alternative form as $q \left( W \right) = e^{-W} p \left( W \right)$.   
+The R package `wevid` (available on CRAN) has an algorithm to estimate the densities $p \left( W \right)$ and $q \left( W \right)$, subject to the constraint imposed by this mapping. 
+
+#{.col-2}
+## The expected weight of evidence $\Lambda$
+### Alternative names for $\Lambda$
+* the **expected information for discrimination** between cases and controls     
+* the **Kullback-Leibler divergence** from the class-conditional distribution $\mathcal{Q}$ of the predictors under incorrect case-control assignment to their distribution $\mathcal{P}$ under correct assignment  
+* the **relative entropy** of $\mathcal{P}$ with respect to $\mathcal{Q}$   
+As $\Lambda$ is a Kullback-Leibler divergence, it can take only non-negative values.
+
+### Why use $\Lambda$ rather than $C$?  
+- Contributions of independent variables to predictive performance are additive on the scale of $\Lambda$. 
+- The expected weight of evidence has an intuitive interpretation as the typical factor by which prior odds are updated to posterior odds 
+- The calculation of weight of evidence can be extended to interval-censored failure-time data. 
+
+## Relation of weight of evidence to ROC curve
+```{r comment="", clambda, echo=FALSE, results="hide", warnings=FALSE, message=FALSE, fig.caption="Asymptotic relationship of $C$-statistic to expected weight of evidence", fig.width=5, fig.asp=1}
+Lambda <- seq(0, 5, by=0.01)
+lambda2c <- function(x) return(1 - pnorm(-sqrt(0.5 * x / log(2))))
+
+C <- lambda2c(Lambda)
+curve <- data.frame(Lambda, C)
+inc1 <- round(lambda2c(1) - 0.5, 2)
+inc2 <- round(lambda2c(3) - lambda2c(2), 2)
+clambda <- ggplot(data=curve, aes(x=Lambda, y=C)) +
+    theme_set(theme_grey(base_size = 16)) +
+    geom_line() +
+    scale_x_continuous(limits=c(0, 5), expand=c(0,0)) +
+    scale_y_continuous(limits=c(0.5, 1), expand=c(0,0)) +
+    xlab(expression(paste("Expected weight of evidence ", Lambda, " (bits)"))) +
+    ylab("Asymptotic value of C-statistic") +
+    theme(axis.text=element_text(size=24),
+          axis.title=element_text(size=24)) +
+    geom_segment(x=0, y=0.5, xend=1, yend=0.5, colour="blue") +
+    geom_segment(x=1, y=0.5, xend=1, yend=lambda2c(1), arrow=arrow(), colour="blue") +
+    annotate("text", x=2.5, y=0.7,
+             label = "Matched\ncase-control study", colour="blue", size=8) + 
+    annotate("text", x=2.5, y=0.63,
+             label = as.expression(bquote(Delta~"C = "~.(inc1))),
+             colour="blue", size=8) + 
+    annotate("text", x=4, y=0.87,
+             label = "Unmatched\ncohort study", colour="red", size=8) + 
+    annotate("text", x=4, y=0.8,
+             label = as.expression(bquote(Delta~"C = "~.(inc2))),
+             colour="red", size=8) + 
+    geom_segment(x=2, y=lambda2c(2), xend=3, yend=lambda2c(2), colour="red") +
+    geom_segment(x=3, y=lambda2c(2), xend=3, yend=lambda2c(3), arrow=arrow(), colour="red")
+png("clambda.png")
+options(warn=-1)
+clambda
+options(warn=0)
+dev.off()
+```
+The modelbased ROC curve is the curve obtained by plotting the quantiles of the density $p \left( W \right)$ (with axis reversed) against the quantiles of $q \left( W \right)$.   The gradient of this function is the Bayes factor $\exp{ \left( W \right) }$ (Johnson, 2004).  Because the Bayes factor is a monotonic decreasing function of  $q \left( W \right)$, this curve is concave downwards.  
+If there are many independent predictors of small effect, the weight of evidence will have the asymptotic distribution derived by Turing and the $C$-statistic can be interpreted as a mapping of the expected weight of evidence $\Lambda$, which takes values from 0 to infinity, to the interval from 0.5 to 1 as shown below.  
+From this curve we can see why the increment in $C$-statistic is hard to interpret:  
+* if a biomarker contributing expected weight of evidence of 1 bit is evaluated in a case-control study in which covariates (such as age) have been matched, the increment in $C$-statistic is large (from 0.5 to 0.8).  
+* if the same biomarker is evaluated in a cohort study in which these covariates contribute a weight of evidence of 2 bits, the increment in $C$-statistic will bes much smaller.  
+![Asymptotic relationship of $C$-statistic to expected weight of evidence $\Lambda$](clambda.png){width=60%}   
+
+## An example
+### Prediction of coronary disease in Cleveland
+```{r comment="", pima, echo=FALSE}
+library(wevid)
+library(pander)
+library(ggplot2)
+library(gtable)
+library(grid)
+library(gridExtra)
+
+theme_set(theme_grey(base_size = 18))
+
+data(cleveland)
+cleveland.densities <- with(cleveland,
+                        Wdensities(y, posterior.p, prior.p))
+if(FALSE) {
+	  pander(summary(cleveland.densities)[, c(1, 3, 5, 7)], table.style="multiline",
+          split.cells=c(3, 3, 3, 3), split.table="Inf",
+          caption=NULL)
+       }
+```
+The plots below show the results of using the _wevid_ package in R to estimate the densities of weights of evidence $W$ in cases and controls from a publicly available dataset on predictors of coronary disease in Cleveland.  The three plots show the densities, the cumulative frequency distributions, and the model-based ROC curve (with axes reversed).  
+The expected weight of evidence $\Lambda$ is 2.3 bits. Suppose we set a risk threshold based on a Bayes factor of 4 ($W = 2$ bits, vertical blue line).  The cumulative frequency plot shows that at this threshold, `r round(100 * q[1])`% of controls and `r round(100 * q[2])`% of cases will be excluded. The quantile (`r round(q[2], 2)`) of the weight of evidence $W$ in cases cases at this risk threshold is represented by the horizontal green line. The gradient of the model-based ROC curve (blue tangent line) at this quantile is the Bayes factor of 4.  
+All three plots encode the same information: but it is easier to read the sensitivity and specificity at a given value of the Bayes factor from the cumulative frequency plot, where the log Bayes factor is the scale of the $x$-axis, than from the model-based ROC curve where the Bayes factor is encoded as the gradient of the curve.  
+```{r comment="", cleveland.plotall, echo=FALSE, results="hide", message=FALSE, warnings=FALSE, fig.width=15}
+cutoff <- 4
+q <- prop.belowthreshold(densities=cleveland.densities, w.threshold=log(cutoff))
+## tangent to ROC curve is equation of the line y = a + b*x
+## passing through x1, y1 with gradient b
+x1 <- q[1]
+y1 <- -(1 - q[2])
+a = y1 - cutoff * x1
+
+p.dists <- plotWdists(cleveland.densities) +
+    geom_vline(xintercept = log2(cutoff), color="blue") +
+    scale_x_continuous(limits=c(-10, 10), expand=c(0,0)) +
+    theme(legend.title=element_blank()) +
+    theme(legend.text=element_text(size=12)) +  
+    theme(legend.position=c(1, 1)) + 
+    theme(axis.title=element_text(size=12)) +
+    theme(axis.title.x = element_blank())
+
+p.cumfreqs <- plotcumfreqs(cleveland.densities) +
+    coord_fixed(ratio=1/15) +
+    geom_vline(xintercept=log2(cutoff), color="blue") +
+    scale_x_continuous(limits=c(-10, 10), expand=c(0,0)) +
+    scale_y_continuous(limits=c(0, 1), expand=c(0,0)) +
+    theme(axis.title=element_text(size=12)) +
+    geom_hline(yintercept=q[2], color="green") + 
+    xlab("Weight of evidence (bits)") +
+    theme(legend.text=element_text(size=12)) +
+    theme(legend.position="none") + 
+    theme(legend.title=element_blank())  
+
+p.roc <- plotroc(cleveland.densities) +
+    scale_color_manual(values=c("orange", "purple")) + 
+    geom_abline(intercept = a, slope = cutoff, color="blue") +
+    geom_hline(yintercept=-y1, color="green") + 
+    coord_fixed(ratio=1) +
+    theme(axis.title=element_text(size=12)) +
+    theme(legend.title=element_blank()) + 
+    theme(legend.text=element_text(size=12)) +  
+    theme(legend.position=c(0.7, 0.6)) + 
+    scale_x_continuous(limits=c(0, 1), expand=c(0, 0)) +
+    scale_y_reverse(limits=c(1, 0), expand=c(0, 0)) +
+    xlab("Specificity") +
+    ylab("Sensitivity (reverse scale)")
+
+p1 <- ggplot_gtable(ggplot_build(p.dists))
+p2 <- ggplot_gtable(ggplot_build(p.cumfreqs))
+p3 <- ggplot_gtable(ggplot_build(p.roc))
+
+maxWidth = grid::unit.pmax(p1$widths[2:3], p2$widths[2:3])
+p1$widths[2:3] <- as.list(maxWidth)
+p2$widths[2:3] <- as.list(maxWidth)
+
+maxHeight = grid::unit.pmax(p2$heights[2:3], p3$heights[2:3])
+p2$heights[2:3] <- as.list(maxHeight)
+p3$heights[2:3] <- as.list(maxHeight)
+
+g <- arrangeGrob(p1, p2, p3,
+                 layout_matrix = rbind(c(1, NA),
+                                       c(2, 3)))
+png("curves.png")
+grid.newpage()
+grid.draw(g)
+dev.off()
+```
+
+![Relationship of ROC curve to quantiles of weight of evidence](./curves.png){width=90%}
+
