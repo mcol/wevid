@@ -160,15 +160,17 @@ Wdensities <- function(y, posterior.p, prior.p,
     xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
 
     # determine number of mixture components by model comparison with BIC
-    BIC.matrix.ctrls <- mclustBIC(data.frame(W[y==0]), G=1:2)
-    BIC.matrix.cases <- mclustBIC(data.frame(W[y==1]), G=1:2)
-    BIC.matrix <- BIC.matrix.ctrls + BIC.matrix.cases
-
+    BIC.matrix.ctrls <- mclustBIC(data.frame(W[y==0]), G=1:2, verbose=FALSE)
+    BIC.matrix.cases <- mclustBIC(data.frame(W[y==1]), G=1:2, verbose=FALSE)
+    BIC.vector <- (BIC.matrix.ctrls + BIC.matrix.cases)[, 1]
+    BIC.vector <- (BIC.vector - min(BIC.vector))
+    print(round(BIC.vector, 2))
+    num.components <- as.integer(which.max(BIC.vector))
+    cat("Density with", num.components, "mixture", 
+        ifelse(num.components == 1, "component", "components"), "chosen by BIC\n")    
     mixcomponent <- NULL
-    num.components <- as.integer(which.max(BIC.matrix[, 1]))
-    if (num.components == 2) {
-        cat("Two-component mixture distributions detected\n")
-        mixmodel <- Mclust(W, G=num.components)
+    if (num.components > 1) {
+        mixmodel <- Mclust(W, G=num.components, verbose=FALSE)
         mixcomponent <- as.integer(mixmodel$classification)
     }
 
@@ -267,12 +269,14 @@ Wdensities.mix <- function(y, W, xseq, mixcomponent) {
 #' @importFrom stats density
 #' @noRd
 density.mixture <- function(W, mixcomponent, xseq) {
+    ## fit a density for each mixture component
     density.1 <- density(W[mixcomponent==1], bw="SJ", n=length(xseq),
                              from=min(xseq), to=max(xseq))
     density.2 <- density(W[mixcomponent==2], bw="SJ", n=length(xseq),
                             from=min(xseq), to=max(xseq))
     wts.mix <- as.integer(table(mixcomponent))
     wts.mix <- wts.mix / sum(wts.mix)
+    ## sum these densities weighted by the mixture proportions
     density.mix <- wts.mix[1] * density.1$y + wts.mix[2] * density.2$y
     return(density.mix)
 }
