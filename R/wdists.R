@@ -157,8 +157,8 @@ Wdensities <- function(y, posterior.p, prior.p,
     xseq <- seq(range.xseq[1], range.xseq[2], by=x.stepsize)
 
     # determine number of mixture components by model comparison with BIC
-    BIC.matrix.ctrls <- mclustBIC(data.frame(W[yobs==0]), G=1:2)
-    BIC.matrix.cases <- mclustBIC(data.frame(W[yobs==1]), G=1:2)
+    BIC.matrix.ctrls <- mclustBIC(data.frame(W[y==0]), G=1:2)
+    BIC.matrix.cases <- mclustBIC(data.frame(W[y==1]), G=1:2)
     BIC.matrix <- BIC.matrix.ctrls + BIC.matrix.cases
 
     mixcomponent <- NULL
