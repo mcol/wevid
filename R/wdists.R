@@ -163,7 +163,7 @@ Wdensities <- function(y, posterior.p, prior.p,
 
     mixcomponent <- NULL
     num.components <- as.integer(which.max(BIC.matrix[, 1]))
-    if(num.components <- 2) {
+    if (num.components == 2) {
         cat("Two-component mixture distributions detected\n")
         mixmodel <- Mclust(W, G=num.components)
         mixcomponent <- as.integer(mixmodel$classification)
