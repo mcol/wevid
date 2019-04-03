@@ -132,6 +132,7 @@ weightsofevidence <- function(posterior.p, prior.p) {
 #' densities <- with(fitonly, Wdensities(y, posterior.p, prior.p,
 #'                                       in.spike=posterior.p < 0.1))
 #'
+#' @importFrom mclust mclustBIC Mclust
 #' @importFrom stats optim
 #' @export
 Wdensities <- function(y, posterior.p, prior.p,

@@ -75,5 +75,4 @@
 #' 
 #' @docType package
 #' @import ggplot2 
-#' @import mclust
 "_PACKAGE"

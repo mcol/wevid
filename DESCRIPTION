@@ -16,6 +16,7 @@ URL: http://www.homepages.ed.ac.uk/pmckeigu/preprints/classify/wevidtutorial.htm
 LazyLoad: yes
 Imports:
     ggplot2,
+    mclust,
     pROC,
     reshape2,
     zoo
