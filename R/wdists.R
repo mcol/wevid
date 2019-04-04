@@ -164,10 +164,11 @@ Wdensities <- function(y, posterior.p, prior.p,
     BIC.matrix.cases <- mclustBIC(data.frame(W[y==1]), G=1:2, verbose=FALSE)
     BIC.vector <- (BIC.matrix.ctrls + BIC.matrix.cases)[, 1]
     BIC.vector <- (BIC.vector - min(BIC.vector))
-    print(round(BIC.vector, 2))
+    if (debug)
+      print(round(BIC.vector, 2))
     num.components <- as.integer(which.max(BIC.vector))
-    cat("Density with", num.components, "mixture", 
-        ifelse(num.components == 1, "component", "components"), "chosen by BIC\n")    
+    message(sprintf("Density with %d mixture component%s chosen by BIC",
+                    num.components, ifelse(num.components == 1, "", "s")))
     mixcomponent <- NULL
     if (num.components > 1) {
         mixmodel <- Mclust(W, G=num.components, verbose=FALSE)
