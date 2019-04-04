@@ -5,8 +5,8 @@
 \title{Compute densities of weights of evidence in cases and controls}
 \usage{
 Wdensities(y, posterior.p, prior.p, range.xseq = c(-25, 25),
-  x.stepsize = 0.01, adjust.bw = 1, in.spike = NULL,
-  recalibrate = TRUE, debug = FALSE)
+  x.stepsize = 0.01, adjust.bw = 1, recalibrate = TRUE,
+  debug = FALSE)
 }
 \arguments{
 \item{y}{Binary outcome label (0 for controls, 1 for cases).}
@@ -23,15 +23,8 @@ to predict on test data.}
 \item{adjust.bw}{Bandwidth adjustment for the Gaussian kernel density
 estimator. By default it is set to 1 (no adjustment), setting it to
 a value smaller/larger than 1 reduces/increases the smoothing of
-the kernel. This argument is ignored if \code{in.spike} is not
-\code{NULL}.}
-
-\item{in.spike}{If \code{NULL}, the distributions of the weights of evidence
-are assumed to be approximately gaussian. If instead a spike-slab
-mixture distribution should be assumed, the this must be a logical
-vector of the same length as \code{y}, with elements set to \code{TRUE}
-if in the spike component, \code{FALSE} otherwise. Typically used
-where high proportion of values of the predictor are zero.}
+the kernel. This argument is ignored if more than one mixture component
+is identified.}
 
 \item{recalibrate}{If \code{TRUE} (the default) the weights of evidence are
 calculated after the posterior probabilities have been recalibrated
@@ -46,13 +39,13 @@ summary measures and generate plots.
 \description{
 The function computes smoothed densities of the weight of evidence in
 cases and in controls from the crude probabilities, then adjusts them to
-make them mathematically consistent.
+make them mathematically consistent so that p(W_ctrl) = exp(-W) p(W_case).
 }
 \details{
-If the model probabilities reflect a spike-slab mixture distribution, where
-a high proportion of values of the predictor are zero, these can be
-indicated through the \code{in.spike} argument. In the general case, it's
-fine to leave it set to \code{NULL}.
+If the sample distributions in cases and controls support a 2-component
+mixture model (based on model comparison with BIC) for the densities, this
+will be detected and a 2-component mixture model will be fitted before
+adjustment.
 }
 \examples{
 data(cleveland)
@@ -60,7 +53,6 @@ densities <- with(cleveland, Wdensities(y, posterior.p, prior.p))
 
 # Example which requires fitting a mixture distribution
 data(fitonly)
-densities <- with(fitonly, Wdensities(y, posterior.p, prior.p,
-                                      in.spike=posterior.p < 0.1))
+densities <- with(fitonly, Wdensities(y, posterior.p, prior.p))
 
 }

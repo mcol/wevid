@@ -26,8 +26,7 @@ plotWdists(densities)
 
 # Example which requires fitting a mixture distribution
 data(fitonly)
-densities <- with(fitonly, Wdensities(y, posterior.p, prior.p,
-                                      in.spike=posterior.p < 0.1))
+densities <- with(fitonly, Wdensities(y, posterior.p, prior.p))
 
 # truncate spike
 plotWdists(densities) + ggplot2::scale_y_continuous(limits=c(0, 0.5))

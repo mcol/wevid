@@ -7,7 +7,7 @@
 \usage{
 Wdensities.crude(y, W, xseq, adjust.bw = 1)
 
-Wdensities.mix(y, W, xseq, in.spike)
+Wdensities.mix(y, W, xseq, mixcomponent)
 }
 \arguments{
 \item{y}{Binary outcome label (0 for controls, 1 for cases).}
@@ -18,9 +18,8 @@ Wdensities.mix(y, W, xseq, in.spike)
 
 \item{adjust.bw}{Bandwidth adjustment.}
 
-\item{in.spike}{Logical vector same length as \code{y}, \code{TRUE} if in
-spike component, \code{FALSE} otherwise. Typically used where high
-proportion of values of the predictor are zero.}
+\item{mixcomponent}{integer vector same length as \code{y}, coded 1 or 2.
+Typically set by \code{Wdensities} which calls this function.}
 }
 \value{
 List of crude densities for controls and cases sampled at each point in the
