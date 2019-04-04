@@ -20,3 +20,19 @@ test_that("linear regression",
   expect_equal(s2, s2.ok)
   expect_equal(s3, s3.ok)
 })
+
+test_that("posterior probabilities 0 or 1",
+{
+  p10 <- pima
+  p10$posterior.p[100] <- 0
+  expect_error(with(p10, Wdensities(y, posterior.p, prior.p)),
+               "exactly 0 or 1")
+  expect_error(with(p10, weightsofevidence(posterior.p, prior.p)),
+               "exactly 0 or 1")
+
+  p10$posterior.p[100] <- 1
+  expect_error(with(p10, Wdensities(y, posterior.p, prior.p)),
+               "exactly 0 or 1")
+  expect_error(with(p10, weightsofevidence(posterior.p, prior.p)),
+               "exactly 0 or 1")
+})

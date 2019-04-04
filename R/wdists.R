@@ -148,6 +148,8 @@ Wdensities <- function(y, posterior.p, prior.p,
         stop("y and posterior.p must have the same number of observations.")
     if (x.stepsize < 0)
         stop("x.stepsize must be positive.")
+    if (any(posterior.p == 0 | posterior.p == 1))
+        stop("Posterior probabilities exactly 0 or 1.")
 
     posterior.p.recalib <- recalibrate.p(y, posterior.p)
     if(recalibrate) {# default is to use the recalibrated posterior
@@ -466,6 +468,8 @@ validate.probabilities <- function(posterior, prior) {
         stop("NAs not allowed in the vectors of probabilities.")
     if (any(posterior < 0 | posterior > 1 | prior < 0 | prior > 1))
         stop("Vector does not contain probabilities.")
+    if (any(posterior == 0 | posterior == 1))
+        stop("Posterior probabilities exactly 0 or 1.")
 }
 
 #' Recalibrate posterior probabilities
