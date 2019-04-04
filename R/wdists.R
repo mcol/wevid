@@ -169,16 +169,14 @@ Wdensities <- function(y, posterior.p, prior.p,
     num.components <- as.integer(which.max(BIC.vector))
     message(sprintf("Density with %d mixture component%s chosen by BIC",
                     num.components, ifelse(num.components == 1, "", "s")))
-    mixcomponent <- NULL
+
     if (num.components > 1) {
         mixmodel <- Mclust(W, G=num.components, verbose=FALSE)
         mixcomponent <- as.integer(mixmodel$classification)
-    }
-
-    if (is.null(mixcomponent)) {
-        crude <- Wdensities.crude(y, W, xseq, adjust.bw)
-    } else {
         crude <- Wdensities.mix(y, W, xseq, mixcomponent)
+    }
+    else {
+        crude <- Wdensities.crude(y, W, xseq, adjust.bw)
     }
     crude$x <- xseq
     crude$n.ctrls <- n.ctrls
