@@ -115,8 +115,8 @@ weightsofevidence <- function(posterior.p, prior.p) {
 #' @param adjust.bw Bandwidth adjustment for the Gaussian kernel density
 #'        estimator. By default it is set to 1 (no adjustment), setting it to
 #'        a value smaller/larger than 1 reduces/increases the smoothing of
-#'        the kernel. This argument is ignored if \code{in.spike} is not
-#'        \code{NULL}.
+#'        the kernel. This argument is ignored if more than one mixture component
+#'        is identified.
 #' @param recalibrate If \code{TRUE} (the default) the weights of evidence are
 #'        calculated after the posterior probabilities have been recalibrated
 #'        against \code{y} using a logistic regression model.
