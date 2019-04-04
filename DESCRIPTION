@@ -1,7 +1,7 @@
 Package: wevid
 Type: Package
 Title: Quantifying Performance of a Binary Classifier Through Weight of Evidence
-Version: 0.6
+Version: 0.6.0.9000
 Date: 2019-04-04
 Authors@R: c(person("Paul", "McKeigue",
                     email="paul.mckeigue@ed.ac.uk", role=c("aut"),
