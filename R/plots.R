@@ -1,6 +1,6 @@
 ##=============================================================================
 ##
-## Copyright (c) 2018 Paul McKeigue
+## Copyright (c) 2018-2019 Paul McKeigue
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -138,7 +138,8 @@ plotroc <- function(densities) {
                             y=1 - densities$cumfreq.cases)
     roc.model$calc <- "Model-based"
 
-    roc.crude <- roc(densities$y, densities$posterior.p, direction="<")
+    roc.crude <- roc(densities$y, densities$posterior.p,
+                     direction="<", quiet=TRUE)
     roc.crude <- data.frame(x=roc.crude$specificities,
                             y=roc.crude$sensitivities)
     roc.crude$calc <- "Crude"

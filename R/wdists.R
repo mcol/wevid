@@ -1,6 +1,6 @@
 ##=============================================================================
 ##
-## Copyright (c) 2018 Paul McKeigue
+## Copyright (c) 2018-2019 Paul McKeigue
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -358,7 +358,8 @@ auroc.crude <- function(densities) {
 
     ## force direction of computation of the C-statistic so that predicted
     ## values for controls are lower or equal than values for cases
-    auroc <- as.numeric(with(densities, auc(y, posterior.p, direction="<")))
+    auroc <- as.numeric(with(densities, auc(y, posterior.p, direction="<",
+                                            quiet=TRUE)))
     return(auroc)
 }
 
