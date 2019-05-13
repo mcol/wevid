@@ -1,8 +1,8 @@
 Package: wevid
 Type: Package
 Title: Quantifying Performance of a Binary Classifier Through Weight of Evidence
-Version: 0.6.0.9000
-Date: 2019-04-04
+Version: 0.6.1
+Date: 2019-05-13
 Authors@R: c(person("Paul", "McKeigue",
                     email="paul.mckeigue@ed.ac.uk", role=c("aut"),
                     comment=c(ORCID="0000-0002-5217-1034")),
@@ -17,7 +17,7 @@ LazyLoad: yes
 Imports:
     ggplot2,
     mclust,
-    pROC,
+    pROC (>= 1.9),
     reshape2,
     zoo
 ByteCompile: TRUE
