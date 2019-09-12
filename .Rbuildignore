@@ -1,7 +1,10 @@
+.csv
 .jpg
 .git
+.gitignore
 .RData
 .Rhistory
+.tar.gz
 quote.css
 wevid_drposter.Rmd
 wevidtutorial.Rmd

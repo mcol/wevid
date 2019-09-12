@@ -1,0 +1,4 @@
+*.RData
+*.Rhistory
+*.csv
+*.tar.gz
