@@ -5,12 +5,16 @@ citEntry(entry = "Article",
              information for discrimination: Relation to the C-statistic",
   author  = "Paul McKeigue",
   journal = "Statistical Methods in Medical Research",
-  year    = "2018",
+  volume  = "28",
+  number  = "6",
+  pages   = "1841--1851",
+  year    = "2019",
   doi     = "10.1177/0962280218776989",
-  textVersion  = paste("Paul McKeigue (2018).",
+  textVersion  = paste("Paul McKeigue (2019).",
                        "Quantifying performance of a diagnostic test as the
                         expected information for discrimination: Relation
                         to the C-statistic.",
-                       "Statistical Methods in Medical Research.",
+                       "Statistical Methods in Medical Research",
+                       "28 (6), 1841-1851.",
                        "URL: https://doi.org/10.1177/0962280218776989")
 )
