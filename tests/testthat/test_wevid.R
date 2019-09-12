@@ -23,13 +23,17 @@ test_that("example datasets",
 
 test_that("two components in controls, one in cases",
 {
+  set.seed(1)
+  ex1.y <- c(rep(0, 50), rep(1, 50))
+  ex1.posterior.p <- c(runif(50, 0, 0.1), runif(25, 0, 0.2), runif(25, 0.4, 0.6))
+  ex1.prior.p <- 0.1
   expect_message(d1 <- Wdensities(ex1.y, ex1.posterior.p, ex1.prior.p),
                  "Density with 2 mixture components chosen by BIC")
   s1 <- summary(d1)
 
-  expect_equal(s1$`Crude C-statistic`, 0.812)
-  expect_equal(s1$`Crude Λ (bits)`, 0.73)
-  expect_equal(s1$`Test log-likelihood (nats)`, -162.9)
+  expect_equal(s1$`Crude C-statistic`, 0.870)
+  expect_equal(s1$`Crude Λ (bits)`, 1.38)
+  expect_equal(s1$`Test log-likelihood (nats)`, -83.97)
 })
 
 test_that("posterior probabilities 0 or 1",
