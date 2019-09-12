@@ -266,18 +266,22 @@ Wdensities.mix <- function(y, W, xseq, mixcomponent) {
     return(list(f.ctrls=Wdensity.mix.ctrls, f.cases=Wdensity.mix.cases))
 }
 
-# fits a 2-component mixture density over range of xseq
+#' Fit a 2-component mixture density over range of xseq
 #' @importFrom stats density
 #' @noRd
 density.mixture <- function(W, mixcomponent, xseq) {
+    num.xseq <- length(xseq)
+    min.xseq <- min(xseq)
+    max.xseq <- max(xseq)
+
     ## fit a density for each mixture component
-    density.1 <- density(W[mixcomponent==1], bw="SJ", n=length(xseq),
-                             from=min(xseq), to=max(xseq))
-    density.2 <- density(W[mixcomponent==2], bw="SJ", n=length(xseq),
-                            from=min(xseq), to=max(xseq))
-    wts.mix <- as.integer(table(mixcomponent))
-    wts.mix <- wts.mix / sum(wts.mix)
+    density.1 <- density(W[mixcomponent == 1], bw="SJ",
+                         n=num.xseq, from=min.xseq, to=max.xseq)
+    density.2 <- density(W[mixcomponent == 2], bw="SJ",
+                         n=num.xseq, from=min.xseq, to=max.xseq)
+
     ## sum these densities weighted by the mixture proportions
+    wts.mix <- as.integer(table(mixcomponent)) / length(mixcomponent)
     density.mix <- wts.mix[1] * density.1$y + wts.mix[2] * density.2$y
     return(density.mix)
 }
