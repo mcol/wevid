@@ -47,9 +47,9 @@ controls. Once these are computed, they can be plotted with
 can be reported with \code{\link[=summary.Wdensities]{summary}}.
 }
 \references{
-Paul McKeigue (2018), Quantifying performance of a diagnostic test as the
+Paul McKeigue (2019), Quantifying performance of a diagnostic test as the
 expected information for discrimination: Relation to the C-statistic.
-\emph{Statistical Methods for Medical Research},
+\emph{Statistical Methods for Medical Research}, 28 (6), 1841-1851.
 https://doi.org/10.1177/0962280218776989.
 }
 \seealso{
