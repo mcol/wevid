@@ -20,6 +20,8 @@ Imports:
     pROC (>= 1.9),
     reshape2,
     zoo
+Suggests:
+    testthat (>= 2.0.0)
 ByteCompile: TRUE
 Encoding: UTF-8
 RoxygenNote: 6.1.1
