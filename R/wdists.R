@@ -280,8 +280,10 @@ density.mixture <- function(W, mixcomponent, xseq) {
     min.xseq <- min(xseq)
     max.xseq <- max(xseq)
 
-    ## special case in which there is only one component in this subset
-    if (length(unique(mixcomponent)) == 1)
+    ## special case in which there is only one component in this subset or
+    ## the number of observations for a component is not enough to compute
+    ## the bandwidth of the kernel density estimate
+    if (length(unique(mixcomponent)) == 1 || any(table(mixcomponent) < 2))
         return(density(W, bw="SJ", n=num.xseq, from=min.xseq, to=max.xseq)$y)
 
     ## fit a density for each mixture component

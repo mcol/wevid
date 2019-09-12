@@ -36,6 +36,21 @@ test_that("two components in controls, one in cases",
   expect_equal(s1$`Test log-likelihood (nats)`, -83.97)
 })
 
+test_that("two components in cases and controls, but a component with one point",
+{
+  set.seed(1)
+  y <- c(rep(0, 45), rep(1, 50))
+  posterior.p <- c(runif(45, 0, 0.25), runif(50, 0, 0.1))
+  prior.p <- 0.1
+  expect_message(d1 <- Wdensities(y, posterior.p, prior.p),
+                 "Density with 2 mixture components chosen by BIC")
+  s1 <- summary(d1)
+
+  expect_equal(s1$`Crude C-statistic`, 0.144)
+  expect_equal(s1$`Crude Λ (bits)`, -0.79)
+  expect_equal(s1$`Test log-likelihood (nats)`, -168.49)
+})
+
 test_that("posterior probabilities 0 or 1",
 {
   p10 <- pima
