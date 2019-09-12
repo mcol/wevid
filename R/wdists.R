@@ -274,6 +274,10 @@ density.mixture <- function(W, mixcomponent, xseq) {
     min.xseq <- min(xseq)
     max.xseq <- max(xseq)
 
+    ## special case in which there is only one component in this subset
+    if (length(unique(mixcomponent)) == 1)
+        return(density(W, bw="SJ", n=num.xseq, from=min.xseq, to=max.xseq)$y)
+
     ## fit a density for each mixture component
     density.1 <- density(W[mixcomponent == 1], bw="SJ",
                          n=num.xseq, from=min.xseq, to=max.xseq)
